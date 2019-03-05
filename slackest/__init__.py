@@ -1,4 +1,4 @@
-# Copyright 2015 Oktay Sancak
+# Copyright 2019 Cox Automotive, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ __all__ = ['Error', 'Response', 'BaseAPI', 'API', 'Auth', 'Users', 'Groups',
            'Stars', 'Emoji', 'Presence', 'RTM', 'Team', 'Reactions', 'Pins',
            'UserGroups', 'UserGroupsUsers', 'MPIM', 'OAuth', 'DND', 'Bots',
            'FilesComments', 'Reminders', 'TeamProfile', 'UsersProfile',
-           'IDPGroups', 'Apps', 'AppsPermissions', 'Slacker', 'Dialog']
+           'IDPGroups', 'Apps', 'AppsPermissions', 'Slackest', 'Dialog']
 
 
 class Error(Exception):
@@ -60,6 +60,9 @@ class BaseAPI(object):
         self.proxies = proxies
         self.session = session
         self.rate_limit_retries = rate_limit_retries
+        self.retry_max = 10
+        self.retry_counter = 0
+        self.retry_wait_secs = 1
 
     def _request(self, method, api, **kwargs):
         if self.token:
@@ -112,10 +115,20 @@ class BaseAPI(object):
         )
 
     def get(self, api, **kwargs):
-        return self._request(
-            self._session_get if self.session else requests.get,
-            api, **kwargs
-        )
+        try:
+            return self._request(
+                self._session_get if self.session else requests.get,
+                api, **kwargs
+            )
+        except requests.HTTPError as e:
+            # Put a retry here with a short circuit
+            if self.retry_counter < self.retry_max:
+                self.retry_counter =+ 1
+                time.sleep(self.retry_wait_secs)
+                self.get(api, **kwargs)
+            else:
+                raise
+
 
     def post(self, api, **kwargs):
         return self._request(
@@ -198,6 +211,23 @@ class Users(BaseAPI):
 
     def list(self, presence=False):
         return self.get('users.list', params={'presence': int(presence)})
+
+    def list_all_users(self, presence=False, limit=500):
+        response = self.get('users.list', 
+                params={'presence': int(presence), 'limit': limit})
+        members = response.body.get('members', [])
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('users.list', 
+                    params={'presence': int(presence), 'limit': limit, 
+                            'cursor': next_cursor})
+            members.extend(response.body.get('members', []))
+            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+
+        if members:
+            response.body['members'] = members
+
+        return response
 
     def identity(self):
         return self.get('users.identity')
@@ -351,6 +381,93 @@ class Channels(BaseAPI):
     def get_channel_id(self, channel_name):
         channels = self.list().body['channels']
         return get_item_id_by_name(channels, channel_name)
+
+
+class Conversation(BaseAPI):
+    # https://api.slack.com/docs/conversations-api#methods
+
+    def archive(self, channel):
+        return self.post('conversation.archive', data={'channel': channel})
+
+    def close(self, channel):
+        return self.post('conversations.close', data={'channel': channel})
+
+    def create(self, name, is_private=False, user_ids=[]):
+        user_id_string = ",".join(user_ids)
+        return self.post('conversations.create', 
+                data={'name': name, 'is_private': is_private, 'user_ids': user_id_string})
+
+    def history(self, channel, cursor=None, inclusive=0, limit=100, 
+            latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+        # TODO: finish implementation w/ cursor
+
+        return self.post('conversations.history', 
+                data={'channel': channel})
+
+    def history_all(self, channel):
+        # TODO: finish implementation 
+        pass
+
+    def info(self, channel, include_locale=False, include_num_members=False):
+        return self.post('conversations.info', data={'channel': channel, 
+            'include_locale': include_locale,'include_num_members': include_num_members})
+
+    def invite(self, channel, user_ids=[]):
+        user_id_string = ",".join(user_ids)
+        return self.post('conversations.invite', data={'channel': channel,
+            'users': user_id_string})
+
+    def join(self, channel):
+        return self.post('conversations.join', data={'channel': channel})
+
+    def kick(self, channel, user):
+        return self.post('conversations.kick', data={'channel': channel, 'user': user})
+
+    def leave(self, channel):
+        return self.post('conversations.leave', data={'channel': channel})
+
+    def list(self, cursor=None, exclude_archived=False, limit=100, types="public_channel"):
+
+        return self.post('conversations.list', data={'cursor': cursor, 'exclude_archived': exclude_archived,
+            'limit': limit, 'types': types})
+
+    def list_all(self, exclude_archived=False, types="public_channel"):
+        # TODO: finish implementation
+        pass
+
+    def members(self, channel, cursor=None, limit=100):
+        return self.post('conversations.members', data={'channel': channel, 'cursor': cursor, 'limit': limit})
+
+    def members_all(self, channel):
+        # TOOD: finish implementation
+        pass
+
+    def open(self, channel, return_im=True, user_ids=[]):
+        user_id_string = ",".join(user_ids)
+        self.post('conversations.open', data={'channel': channel, 'return_im': return_im, 'users': user_id_string})
+
+    def rename(self, channel, name):
+        self.post('conversations.rename', data={'channel': channel, 'name': name})
+
+    def replies(self, channel, ts, cursor=None, inclusive=0, limit=100, 
+            latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+        # TODO: finish implementation w/ cursor
+
+        return self.post('conversations.replies', 
+                data={'channel': channel, 'ts': ts})
+
+    def replies_all(self, channel, ts):
+        # TODO: finish implementation
+        pass
+
+    def setPurpose(self, channel, purpose):
+        self.post('conversations.setPurpose', data={'channel': channel, 'purpose': purpose})
+
+    def setTopic(self, channel, topic):
+        self.post('conversations.setTopic', data={'channel': channel, 'topic': topic})
+
+    def unarchive(self, channel):
+        self.post('conversations.unarchive', data={'channel': channel})
 
 
 class Chat(BaseAPI):
@@ -1028,7 +1145,7 @@ class IncomingWebhook(object):
                              timeout=self.timeout, proxies=self.proxies)
 
 
-class Slacker(object):
+class Slackest(object):
     oauth = OAuth(timeout=DEFAULT_TIMEOUT)
 
     def __init__(self, token, incoming_webhook_url=None,
@@ -1050,6 +1167,7 @@ class Slacker(object):
         self.apps = Apps(**api_args)
         self.auth = Auth(**api_args)
         self.bots = Bots(**api_args)
+        self.conversation = Conversation(**api_args)
         self.chat = Chat(**api_args)
         self.dialog = Dialog(**api_args)
         self.team = Team(**api_args)
@@ -1077,3 +1195,9 @@ class Slacker(object):
         if https_proxy:
             proxies['https'] = https_proxy
         return proxies
+
+    def create_channel(self, channel, is_private=False, users=[]):
+        return self.conversation.create(channel, is_private, users)
+
+    def kick_user(self, channel, user):
+        return self.conversation.kick(channel, user)

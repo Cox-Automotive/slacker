@@ -6,15 +6,15 @@ with open('README.rst') as f:
 
 
 setup(
-    name='slacker',
+    name='slackest',
     version='0.12.0',
-    packages=['slacker'],
+    packages=['slackest'],
     description='Slack API client',
     long_description=readme,
     long_description_content_type='text/x-rst',
-    author='Oktay Sancak',
-    author_email='oktaysancak@gmail.com',
-    url='http://github.com/os/slacker/',
+    author='Cox Automotive Cloud Team',
+    author_email='andrew.sledge@coxautoinc.com',
+    url='http://github.com/os/slackest/',
     install_requires=['requests >= 2.2.1'],
     license='http://www.apache.org/licenses/LICENSE-2.0',
     test_suite='tests',

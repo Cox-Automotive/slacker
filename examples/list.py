@@ -5,7 +5,7 @@
 # https://api.slack.com/methods
 
 import os
-from slacker import Slacker
+from slackest import Slackest
 
 
 def list_slack():

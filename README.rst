@@ -1,6 +1,6 @@
-=======
-Slacker
-=======
+========
+Slackest
+========
 
 |pypi|_
 |build status|_
@@ -13,16 +13,16 @@ Slacker
 About
 =====
 
-Slacker is a full-featured Python interface for the `Slack API
+Slackest is a full-featured Python interface for the `Slack API
 <https://api.slack.com/>`_.
 
 Examples
 ========
 .. code-block:: python
 
-    from slacker import Slacker
+    from slackest import Slackest
 
-    slack = Slacker('<your-slack-api-token-goes-here>')
+    slack = Slackest('<your-slack-api-token-goes-here>')
 
     # Send a message to #general channel
     slack.chat.post_message('#general', 'Hello fellow slackers!')
@@ -36,7 +36,7 @@ Examples
 
     # If you need to proxy the requests
     proxy_endpoint = 'http://myproxy:3128'
-    slack = Slacker('<your-slack-api-token-goes-here>',
+    slack = Slackest('<your-slack-api-token-goes-here>',
                     http_proxy=proxy_endpoint,
                     https_proxy=proxy_endpoint)
 
