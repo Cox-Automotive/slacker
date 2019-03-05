@@ -8,8 +8,6 @@ Slackest
 |license|_
 |gitter chat|_
 
-.. image:: https://raw.githubusercontent.com/os/slacker/master/static/slacker.jpg
-
 About
 =====
 
