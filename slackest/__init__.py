@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import datetime
 import json
 
 import requests
@@ -400,13 +400,24 @@ class Conversation(BaseAPI):
     def history(self, channel, cursor=None, inclusive=0, limit=100, 
             latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
         # TODO: finish implementation w/ cursor
-
-        return self.post('conversations.history', 
+        return self.post('conversations.history',
                 data={'channel': channel})
 
-    def history_all(self, channel):
-        # TODO: finish implementation 
-        pass
+    def history_all(self, channel, cursor=None, inclusive=0, limit=100,
+                    latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+        response = self.get('conversations.history',
+                            params={'channel': channel})
+        conversations = response.body.get('messages', [])
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('conversations.history',
+                                params={'channel':channel,'cursor': next_cursor})
+            conversations.extend(response.body.get('messages', []))
+            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+
+        if conversations:
+            response.body['messages'] = conversations
+        return response
 
     def info(self, channel, include_locale=False, include_num_members=False):
         return self.post('conversations.info', data={'channel': channel, 
@@ -1201,3 +1212,6 @@ class Slackest(object):
 
     def kick_user(self, channel, user):
         return self.conversation.kick(channel, user)
+
+    def history_all(self, channel):
+        return self.conversation.history_all(channel)
