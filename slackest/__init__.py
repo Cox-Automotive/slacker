@@ -438,13 +438,24 @@ class Conversation(BaseAPI):
         return self.post('conversations.leave', data={'channel': channel})
 
     def list(self, cursor=None, exclude_archived=False, limit=100, types="public_channel"):
-
         return self.post('conversations.list', data={'cursor': cursor, 'exclude_archived': exclude_archived,
             'limit': limit, 'types': types})
 
-    def list_all(self, exclude_archived=False, types="public_channel"):
-        # TODO: finish implementation
-        pass
+    def list_all(self, exclude_archived=False, limit=100, types="public_channel"):
+        response = self.post('conversations.list',
+                            params={'exclude_archived': exclude_archived,'limit': limit, 'types': types})
+        channels = response.body.get('channels', [])
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('conversations.list',
+                                params={'exclude_archived': exclude_archived,'limit': limit,
+                                        'types': types, 'next_cursor': next_cursor})
+            channels.extend(response.body.get('channels', []))
+            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+
+        if channels:
+            response.body['channels'] = channels
+        return response
 
     def members(self, channel, cursor=None, limit=100):
         return self.post('conversations.members', data={'channel': channel, 'cursor': cursor, 'limit': limit})
@@ -1209,6 +1220,9 @@ class Slackest(object):
 
     def create_channel(self, channel, is_private=False, users=[]):
         return self.conversation.create(channel, is_private, users)
+
+    def get_channels(self,type):
+        return self.conversation.list_all(exclude_archived=True, types=type)
 
     def list_all_users(self):
         return self.users.list_all_users()
