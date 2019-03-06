@@ -452,6 +452,7 @@ class Conversation(BaseAPI):
                                         'types': types, 'cursor': next_cursor})
             channels.extend(response.body.get('channels', []))
             next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+            time.sleep(1.2)
 
         if channels:
             response.body['channels'] = channels
