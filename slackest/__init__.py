@@ -442,7 +442,7 @@ class Conversation(BaseAPI):
             'limit': limit, 'types': types})
 
     def list_all(self, exclude_archived=False, limit=100, types="public_channel"):
-        response = self.post('conversations.list',
+        response = self.get('conversations.list',
                             params={'exclude_archived': exclude_archived,'limit': limit, 'types': types})
         channels = response.body.get('channels', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
