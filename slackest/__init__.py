@@ -1210,6 +1210,9 @@ class Slackest(object):
     def create_channel(self, channel, is_private=False, users=[]):
         return self.conversation.create(channel, is_private, users)
 
+    def list_all_users(self):
+        return self.users.list_all_users()
+
     def kick_user(self, channel, user):
         return self.conversation.kick(channel, user)
 
