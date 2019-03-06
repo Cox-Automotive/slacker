@@ -443,13 +443,13 @@ class Conversation(BaseAPI):
 
     def list_all(self, exclude_archived=False, limit=100, types="public_channel"):
         response = self.get('conversations.list',
-                            params={'exclude_archived': exclude_archived,'limit': limit, 'types': types})
+                            params={'exclude_archived': exclude_archived, 'limit': limit, 'types': types})
         channels = response.body.get('channels', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('conversations.list',
-                                params={'exclude_archived': exclude_archived,'limit': limit,
-                                        'types': types, 'next_cursor': next_cursor})
+                                params={'exclude_archived': exclude_archived, 'limit': limit,
+                                        'types': types, 'cursor': next_cursor})
             channels.extend(response.body.get('channels', []))
             next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
 
