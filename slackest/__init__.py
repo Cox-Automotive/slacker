@@ -1243,4 +1243,4 @@ class Slackest(object):
         return self.conversation.invite(channel, member_id)
 
     def get_channel_info(self, channel_id):
-        return self.conversation.info(channel_id)
+        return self.channels.info(channel_id)
