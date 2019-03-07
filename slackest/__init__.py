@@ -1234,13 +1234,45 @@ class Slackest(object):
         return self.conversation.history_all(channel)
 
     def post_message_to_channel(self, channel_name, message):
-        return self.chat.post_message(channel_name, text=message)
+        return self.chat.post_message(channel_name, text=message, link_names=True)
 
     def post_thread_to_message(self, channel_name, message, thread_ts):
-        return self.chat.post_message(channel_name, text=message, thread_ts=thread_ts)
+        return self.chat.post_message(channel_name, text=message, thread_ts=thread_ts, link_names=True)
 
     def add_member_to_channel(self,channel,member_id):
         return self.conversation.invite(channel, member_id)
 
     def get_channel_info(self, channel_id):
         return self.channels.info(channel_id)
+
+
+
+def get_channel_id(channel_name,slack_channels):
+    channels={}
+    for i in range(len(slack_channels['channels'])):
+        if slack_channels['channels'][i]['name_normalized'].lower() == channel_name:
+            #print(slack_channels['channels'][i])
+            return slack_channels['channels'][i]['id']
+
+if __name__ == '__main__':
+    import boto3
+    import json
+
+    secrets_manager = boto3.client('secretsmanager', region_name='us-east-1')
+    #get slack token
+    slack_secret = secrets_manager.get_secret_value(SecretId='slack_token')
+    slack_OAUTH_TOKEN = json.loads(slack_secret['SecretString'])['josh_token']
+
+    s = Slackest(slack_OAUTH_TOKEN)
+
+    '''
+    channels=str(s.get_channels(exclude_archive=True, limit=500, type="public_channel"))
+    channels=json.loads(channels)
+    print(channels)
+    public_channel_id=get_channel_id("bizops_alerts", channels)
+    print(public_channel_id)
+    '''
+
+    #message=s.add_member_to_channel("CDYMETQUU", ["U27PXP9K3"])
+    message=s.kick_user("CDYMETQUU", "U27PXP9K3")
+    print(message.json())
