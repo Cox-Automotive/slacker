@@ -392,14 +392,13 @@ class Conversation(BaseAPI):
     def close(self, channel):
         return self.post('conversations.close', data={'channel': channel})
 
-    def create(self, name, is_private=False, user_ids=[]):
+    def create(self, name, is_private=True, user_ids=[]):
         user_id_string = ",".join(user_ids)
         return self.post('conversations.create', 
                 data={'name': name, 'is_private': is_private, 'user_ids': user_id_string})
 
     def history(self, channel, cursor=None, inclusive=0, limit=100, 
             latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
-        # TODO: finish implementation w/ cursor
         return self.post('conversations.history',
                 data={'channel': channel})
 
@@ -1219,7 +1218,7 @@ class Slackest(object):
             proxies['https'] = https_proxy
         return proxies
 
-    def create_channel(self, channel, is_private=False, users=[]):
+    def create_channel(self, channel, is_private=True, users=[]):
         return self.conversation.create(channel, is_private, users)
 
     def get_channels(self, exclude_archive, limit, type):
@@ -1233,3 +1232,12 @@ class Slackest(object):
 
     def history_all(self, channel):
         return self.conversation.history_all(channel)
+
+    def post_message_to_channel(self, channel_name, message):
+        return self.chat.post_message(channel_name, text=message)
+
+    def post_thread_to_message(self, channel_name, message, thread_ts):
+        return self.chat.post_message(channel_name, text=message, thread_ts=thread_ts)
+
+    def add_member_to_channel(self,channel,member_id):
+        return self.conversation.invite(channel, member_id)
