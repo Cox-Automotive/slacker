@@ -471,16 +471,27 @@ class Conversation(BaseAPI):
     def rename(self, channel, name):
         self.post('conversations.rename', data={'channel': channel, 'name': name})
 
-    def replies(self, channel, ts, cursor=None, inclusive=0, limit=100, 
+    def replies(self, channel, ts, cursor=None, inclusive=0, limit=100,
             latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
-        # TODO: finish implementation w/ cursor
-
-        return self.post('conversations.replies', 
+        return self.post('conversations.replies',
                 data={'channel': channel, 'ts': ts})
 
-    def replies_all(self, channel, ts):
-        # TODO: finish implementation
-        pass
+    def replies_all(self, channel, ts, cursor=None, inclusive=0, limit=100,
+                    latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+        response = self.get('conversations.replies',
+                            params={'channel': channel, 'ts': ts})
+        replies = response.body.get('message', [])
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('conversations.replies',
+                                params={'channel': channel, 'ts': ts, 'cursor': next_cursor})
+            replies.extend(response.body.get('message', []))
+            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+            time.sleep(1.2)
+
+        if replies:
+            response.body['message'] = replies
+        return response
 
     def setPurpose(self, channel, purpose):
         self.post('conversations.setPurpose', data={'channel': channel, 'purpose': purpose})
@@ -1245,34 +1256,5 @@ class Slackest(object):
     def get_channel_info(self, channel_id):
         return self.channels.info(channel_id)
 
-
-
-def get_channel_id(channel_name,slack_channels):
-    channels={}
-    for i in range(len(slack_channels['channels'])):
-        if slack_channels['channels'][i]['name_normalized'].lower() == channel_name:
-            #print(slack_channels['channels'][i])
-            return slack_channels['channels'][i]['id']
-
-if __name__ == '__main__':
-    import boto3
-    import json
-
-    secrets_manager = boto3.client('secretsmanager', region_name='us-east-1')
-    #get slack token
-    slack_secret = secrets_manager.get_secret_value(SecretId='slack_token')
-    slack_OAUTH_TOKEN = json.loads(slack_secret['SecretString'])['josh_token']
-
-    s = Slackest(slack_OAUTH_TOKEN)
-
-    '''
-    channels=str(s.get_channels(exclude_archive=True, limit=500, type="public_channel"))
-    channels=json.loads(channels)
-    print(channels)
-    public_channel_id=get_channel_id("bizops_alerts", channels)
-    print(public_channel_id)
-    '''
-
-    #message=s.add_member_to_channel("CDYMETQUU", ["U27PXP9K3"])
-    message=s.kick_user("CDYMETQUU", "U27PXP9K3")
-    print(message.json())
+    def get_replies(self, channel_id, thread_ts):
+        return self.conversation.replies_all(channel_id, thread_ts)
