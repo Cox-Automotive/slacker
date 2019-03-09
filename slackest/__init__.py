@@ -1260,7 +1260,7 @@ class Slackest(object):
         return self.conversation.replies_all(channel_id, ts)
 
     def set_purpose(self, channel_id, purpose):
-        return  self.conversation.setPurpose(channel_id, purpose)
+        return self.conversation.setPurpose(channel_id, purpose)
 
     def set_topic(self, channel_id, topic):
-        return  self.conversation.setPurpose(channel_id, topic)
+        return self.conversation.setTopic(channel_id, topic)
