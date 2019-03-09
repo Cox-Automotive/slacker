@@ -1241,8 +1241,8 @@ class Slackest(object):
     def kick_user(self, channel, user):
         return self.conversation.kick(channel, user)
 
-    def history_all(self, channel):
-        return self.conversation.history_all(channel)
+    def history_all(self, channel_id):
+        return self.conversation.history_all(channel_id, limit=100)
 
     def post_message_to_channel(self, channel_name, message):
         return self.chat.post_message(channel_name, text=message, link_names=True)
@@ -1256,5 +1256,11 @@ class Slackest(object):
     def get_channel_info(self, channel_id):
         return self.channels.info(channel_id)
 
-    def get_replies(self, channel_id, thread_ts):
-        return self.conversation.replies_all(channel_id, thread_ts)
+    def get_replies(self, channel_id, ts):
+        return self.conversation.replies_all(channel_id, ts)
+
+    def set_purpose(self, channel_id, purpose):
+        return  self.conversation.setPurpose(channel_id, purpose)
+
+    def set_topic(self, channel_id, topic):
+        return  self.conversation.setPurpose(channel_id, topic)
