@@ -1241,8 +1241,11 @@ class Slackest(object):
     def kick_user(self, channel, user):
         return self.conversation.kick(channel, user)
 
-    def history_all(self, channel_id):
-        return self.conversation.history_all(channel_id, limit=100)
+    def history_all(self, channel_id, limit):
+        return self.conversation.history_all(channel_id, limit=limit)
+
+    def post_message_to_channel_unlinked(self, channel_name, message):
+        return self.chat.post_message(channel_name, text=message, link_names=False)
 
     def post_message_to_channel(self, channel_name, message):
         return self.chat.post_message(channel_name, text=message, link_names=True)
