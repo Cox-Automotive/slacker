@@ -14,7 +14,7 @@ setup(
     long_description_content_type='text/x-rst',
     author='Cox Automotive Cloud Team',
     author_email='andrew.sledge@coxautoinc.com',
-    url='http://github.com/os/slackest/',
+    url='http://github.com/Cox-Automotive/slackest/',
     install_requires=['requests >= 2.2.1'],
     license='http://www.apache.org/licenses/LICENSE-2.0',
     test_suite='tests',

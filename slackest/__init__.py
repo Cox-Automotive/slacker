@@ -18,7 +18,7 @@ import requests
 
 import time
 
-from slacker.utils import get_item_id_by_name
+from slackest.utils import get_item_id_by_name
 
 
 __version__ = '0.12.0'
@@ -30,11 +30,12 @@ DEFAULT_RETRIES = 0
 DEFAULT_WAIT = 20
 
 __all__ = ['Error', 'Response', 'BaseAPI', 'API', 'Auth', 'Users', 'Groups',
-           'Channels', 'Chat', 'IM', 'IncomingWebhook', 'Search', 'Files',
-           'Stars', 'Emoji', 'Presence', 'RTM', 'Team', 'Reactions', 'Pins',
-           'UserGroups', 'UserGroupsUsers', 'MPIM', 'OAuth', 'DND', 'Bots',
-           'FilesComments', 'Reminders', 'TeamProfile', 'UsersProfile',
-           'IDPGroups', 'Apps', 'AppsPermissions', 'Slackest', 'Dialog']
+           'Conversation', 'Channels', 'Chat', 'IM', 'IncomingWebhook',
+           'Search', 'Files', 'Stars', 'Emoji', 'Presence', 'RTM', 'Team',
+           'Reactions', 'Pins', 'UserGroups', 'UserGroupsUsers', 'MPIM',
+           'OAuth', 'DND', 'Bots', 'FilesComments', 'Reminders', 'TeamProfile',
+           'UsersProfile', 'IDPGroups', 'Apps', 'AppsPermissions', 'Slackest',
+           'Dialog']
 
 
 class Error(Exception):
