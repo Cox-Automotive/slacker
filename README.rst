@@ -17,7 +17,7 @@ Examples
     slack = Slackest('<your-slack-api-token-goes-here>')
 
     # Send a message to #general channel
-    slack.chat.post_message('#general', 'Hello fellow slackers!')
+    slack.conversation.post_message('#general', 'Hello fellow slackers!')
 
     # Get users list
     response = slack.users.list()
@@ -35,10 +35,10 @@ Examples
     # Advanced: Use `request.Session` for connection pooling (reuse)
     from requests.sessions import Session
     with Session() as session:
-        slack = Slacker(token, session=session)
-        slack.chat.post_message('#general', 'All these requests')
-        slack.chat.post_message('#general', 'go through')
-        slack.chat.post_message('#general', 'a single https connection')
+        slack = Slackest(token, session=session)
+        slack.conversation.post_message('#general', 'All these requests')
+        slack.conversation.post_message('#general', 'go through')
+        slack.conversation.post_message('#general', 'a single https connection')
 
 Installation
 ============
