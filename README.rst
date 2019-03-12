@@ -55,7 +55,7 @@ https://api.slack.com/methods
 TODO
 ====
 
-* Convenience functions within the main Slackest class
+* ~Convenience functions within the main Slackest class~
 * Test completion
 * CICD
 * Publish to PyPi
