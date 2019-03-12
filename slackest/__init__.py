@@ -1229,8 +1229,8 @@ class Slackest(object):
             proxies['https'] = https_proxy
         return proxies
 
-    def create_channel(self, channel, is_private=True, users=[]):
-        return self.conversation.create(channel, is_private, users)
+    def create_channel(self, channel_name, is_private=True, users=[]):
+        return self.conversation.create(channel_name, is_private, users)
 
     def get_channels(self, exclude_archive, limit, type):
         return self.conversation.list_all(exclude_archived=exclude_archive, limit=limit, types=type)
@@ -1238,8 +1238,8 @@ class Slackest(object):
     def list_all_users(self):
         return self.users.list_all_users()
 
-    def kick_user(self, channel, user):
-        return self.conversation.kick(channel, user)
+    def kick_user(self, channel_id, user):
+        return self.conversation.kick(channel_id, user)
 
     def history_all(self, channel_id, limit):
         return self.conversation.history_all(channel_id, limit=limit)
@@ -1250,8 +1250,8 @@ class Slackest(object):
     def post_thread_to_message(self, channel_name, message, thread_ts):
         return self.chat.post_message(channel_name, text=message, thread_ts=thread_ts, link_names=True)
 
-    def add_member_to_channel(self,channel,member_id):
-        return self.conversation.invite(channel, member_id)
+    def add_member_to_channel(self,channel_id, member_id):
+        return self.conversation.invite(channel_id, member_id)
 
     def get_channel_info(self, channel_id):
         return self.channels.info(channel_id)
