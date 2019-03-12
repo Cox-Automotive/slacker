@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import datetime
 import json
 
 import requests
@@ -393,21 +393,31 @@ class Conversation(BaseAPI):
     def close(self, channel):
         return self.post('conversations.close', data={'channel': channel})
 
-    def create(self, name, is_private=False, user_ids=[]):
+    def create(self, name, is_private=True, user_ids=[]):
         user_id_string = ",".join(user_ids)
         return self.post('conversations.create', 
                 data={'name': name, 'is_private': is_private, 'user_ids': user_id_string})
 
     def history(self, channel, cursor=None, inclusive=0, limit=100, 
             latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
-        # TODO: finish implementation w/ cursor
-
-        return self.post('conversations.history', 
+        return self.post('conversations.history',
                 data={'channel': channel})
 
-    def history_all(self, channel):
-        # TODO: finish implementation 
-        pass
+    def history_all(self, channel, cursor=None, inclusive=0, limit=100,
+                    latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+        response = self.get('conversations.history',
+                            params={'channel': channel})
+        conversations = response.body.get('messages', [])
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('conversations.history',
+                                params={'channel':channel,'cursor': next_cursor})
+            conversations.extend(response.body.get('messages', []))
+            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+
+        if conversations:
+            response.body['messages'] = conversations
+        return response
 
     def info(self, channel, include_locale=False, include_num_members=False):
         return self.post('conversations.info', data={'channel': channel, 
@@ -428,13 +438,25 @@ class Conversation(BaseAPI):
         return self.post('conversations.leave', data={'channel': channel})
 
     def list(self, cursor=None, exclude_archived=False, limit=100, types="public_channel"):
-
         return self.post('conversations.list', data={'cursor': cursor, 'exclude_archived': exclude_archived,
             'limit': limit, 'types': types})
 
-    def list_all(self, exclude_archived=False, types="public_channel"):
-        # TODO: finish implementation
-        pass
+    def list_all(self, exclude_archived=False, limit=100, types="public_channel"):
+        response = self.get('conversations.list',
+                            params={'exclude_archived': exclude_archived, 'limit': limit, 'types': types})
+        channels = response.body.get('channels', [])
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('conversations.list',
+                                params={'exclude_archived': exclude_archived, 'limit': limit,
+                                        'types': types, 'cursor': next_cursor})
+            channels.extend(response.body.get('channels', []))
+            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+            time.sleep(1.2)
+
+        if channels:
+            response.body['channels'] = channels
+        return response
 
     def members(self, channel, cursor=None, limit=100):
         return self.post('conversations.members', data={'channel': channel, 'cursor': cursor, 'limit': limit})
@@ -450,16 +472,27 @@ class Conversation(BaseAPI):
     def rename(self, channel, name):
         self.post('conversations.rename', data={'channel': channel, 'name': name})
 
-    def replies(self, channel, ts, cursor=None, inclusive=0, limit=100, 
+    def replies(self, channel, ts, cursor=None, inclusive=0, limit=100,
             latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
-        # TODO: finish implementation w/ cursor
-
-        return self.post('conversations.replies', 
+        return self.post('conversations.replies',
                 data={'channel': channel, 'ts': ts})
 
-    def replies_all(self, channel, ts):
-        # TODO: finish implementation
-        pass
+    def replies_all(self, channel, ts, cursor=None, inclusive=0, limit=100,
+                    latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+        response = self.get('conversations.replies',
+                            params={'channel': channel, 'ts': ts})
+        replies = response.body.get('message', [])
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('conversations.replies',
+                                params={'channel': channel, 'ts': ts, 'cursor': next_cursor})
+            replies.extend(response.body.get('message', []))
+            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+            time.sleep(1.2)
+
+        if replies:
+            response.body['message'] = replies
+        return response
 
     def setPurpose(self, channel, purpose):
         self.post('conversations.setPurpose', data={'channel': channel, 'purpose': purpose})
@@ -1197,8 +1230,38 @@ class Slackest(object):
             proxies['https'] = https_proxy
         return proxies
 
-    def create_channel(self, channel, is_private=False, users=[]):
-        return self.conversation.create(channel, is_private, users)
+    def create_channel(self, channel_name, is_private=True, users=[]):
+        return self.conversation.create(channel_name, is_private, users)
 
-    def kick_user(self, channel, user):
-        return self.conversation.kick(channel, user)
+    def get_channels(self, exclude_archive, limit, type):
+        return self.conversation.list_all(exclude_archived=exclude_archive, limit=limit, types=type)
+
+    def list_all_users(self):
+        return self.users.list_all_users()
+
+    def kick_user(self, channel_id, user):
+        return self.conversation.kick(channel_id, user)
+
+    def history_all(self, channel_id, limit):
+        return self.conversation.history_all(channel_id, limit=limit)
+
+    def post_message_to_channel(self, channel_name, message):
+        return self.chat.post_message(channel_name, text=message, link_names=True)
+
+    def post_thread_to_message(self, channel_name, message, thread_ts):
+        return self.chat.post_message(channel_name, text=message, thread_ts=thread_ts, link_names=True)
+
+    def add_member_to_channel(self,channel_id, member_id):
+        return self.conversation.invite(channel_id, member_id)
+
+    def get_channel_info(self, channel_id):
+        return self.channels.info(channel_id)
+
+    def get_replies(self, channel_id, ts):
+        return self.conversation.replies_all(channel_id, ts)
+
+    def set_purpose(self, channel_id, purpose):
+        return self.conversation.setPurpose(channel_id, purpose)
+
+    def set_topic(self, channel_id, topic):
+        return self.conversation.setTopic(channel_id, topic)
