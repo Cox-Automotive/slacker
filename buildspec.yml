@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - pip install -r requirements-dev.txt
+  pre_build:
+    commands:   
+      - tox
+  build:
+    commands:
+      - mkdir -p dist
+      - python setup.py sdist bdist_wheel
+
+artifacts:
+  name: slackest-$CODEBUILD_BUILD_ID
+  files:
+    - $CODEBUILD_SRC_DIR/dist/*.whl
+    - $CODEBUILD_SRC_DIR/dist/*.tar.gz
+  base-directory: dist
+  discard-paths: yes

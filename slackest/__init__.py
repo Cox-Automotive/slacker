@@ -13,9 +13,7 @@
 # limitations under the License.
 import datetime
 import json
-
 import requests
-
 import time
 
 from slackest.utils import get_item_id_by_name
@@ -387,6 +385,9 @@ class Channels(BaseAPI):
 class Conversation(BaseAPI):
     # https://api.slack.com/docs/conversations-api#methods
 
+    # A Python 2 and Python 3 compatible timestamp
+    timestamp = float((time.mktime(datetime.datetime.now().timetuple())+datetime.datetime.now().microsecond/1000000.0))
+
     def archive(self, channel):
         return self.post('conversation.archive', data={'channel': channel})
 
@@ -399,12 +400,12 @@ class Conversation(BaseAPI):
                 data={'name': name, 'is_private': is_private, 'user_ids': user_id_string})
 
     def history(self, channel, cursor=None, inclusive=0, limit=100, 
-            latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+            latest=timestamp, oldest=0):
         return self.post('conversations.history',
                 data={'channel': channel})
 
     def history_all(self, channel, cursor=None, inclusive=0, limit=100,
-                    latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+                    latest=timestamp, oldest=0):
         response = self.get('conversations.history',
                             params={'channel': channel})
         conversations = response.body.get('messages', [])
@@ -473,12 +474,12 @@ class Conversation(BaseAPI):
         self.post('conversations.rename', data={'channel': channel, 'name': name})
 
     def replies(self, channel, ts, cursor=None, inclusive=0, limit=100,
-            latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+            latest=timestamp, oldest=0):
         return self.post('conversations.replies',
                 data={'channel': channel, 'ts': ts})
 
     def replies_all(self, channel, ts, cursor=None, inclusive=0, limit=100,
-                    latest=datetime.datetime.timestamp(datetime.datetime.now()), oldest=0):
+                    latest=timestamp, oldest=0):
         response = self.get('conversations.replies',
                             params={'channel': channel, 'ts': ts})
         replies = response.body.get('message', [])

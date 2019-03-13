@@ -47,14 +47,45 @@ Installation
 
     $ pip install git+https://github.com/Cox-Automotive/slackest
 
+CICD
+====
+
+This project uses AWS CodeBuild to build. CodeBuild uses a YAML-based file called builspec.yml that runs the appropriate commands.
+
+A wheel and a source distribution is provided according to the buildspec.
+
+Building Locally
+----------------
+
+For local build testing, use the local CodeBuild image. See `this AWS blog post <https://aws.amazon.com/blogs/devops/announcing-local-build-support-for-aws-codebuild/>` for more details.
+
+.. code-block:: bash
+
+    $ git clone https://github.com/aws/aws-codebuild-docker-images.git
+    $ cd aws-codebuild-docker-images/ubuntu/python/3.7.1
+    $ docker build -t aws/codebuild/python:3.7.1 .
+    $ docker pull amazon/aws-codebuild-local:latest --disable-content-trust=false
+    $ wget https://raw.githubusercontent.com/aws/aws-codebuild-docker-images/master/local_builds/codebuild_build.sh && chmod +x codebuild_build.sh
+    $ ./codebuild_build.sh -i aws/codebuild/python:3.7.1 -a /tmp/codebuild/
+
+
 Documentation
 =============
 
+Slack API
+---------
+
 https://api.slack.com/methods
+
+Slackest
+--------
+
+Coming soon!
 
 TODO
 ====
 
-* Test completion
-* CICD
-* Publish to PyPi
+* Test completion, full coverage
+* CICD (in progress)
+* Publish to PyPI
+* Documentation on RTD
