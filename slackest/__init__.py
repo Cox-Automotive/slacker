@@ -15,7 +15,9 @@ import datetime
 import json
 import requests
 import time
-from slacker.utils import get_item_id_by_name
+
+from slackest.utils import get_item_id_by_name
+
 
 __version__ = '0.12.0'
 
