@@ -423,9 +423,10 @@ class Conversation(BaseAPI):
             'include_locale': include_locale,'include_num_members': include_num_members})
 
     def invite(self, channel, user_ids=[]):
-        user_id_string = ",".join(user_ids)
-        return self.post('conversations.invite', data={'channel': channel,
-            'users': user_id_string})
+        user_id_string=user_ids
+        if type(user_ids) is list:
+            user_id_string = ",".join(user_ids)
+        return self.post('conversations.invite', data={'channel': channel,'users': user_id_string})
 
     def join(self, channel):
         return self.post('conversations.join', data={'channel': channel})
@@ -1264,3 +1265,6 @@ class Slackest(object):
 
     def set_topic(self, channel_id, topic):
         return self.conversation.setTopic(channel_id, topic)
+
+    def upload_file(self, filename, channel):
+        return self.files.upload(filename, channel)
