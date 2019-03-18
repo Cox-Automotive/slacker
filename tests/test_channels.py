@@ -5,11 +5,11 @@ import unittest
 
 from mock import patch, Mock
 
-from slacker import Channels
+from slackest import Channels
 
 
 class TestUtils(unittest.TestCase):
-    @patch('slacker.requests')
+    @patch('slackest.requests')
     def test_get_channel_id(self, mock_requests):
         text = {
             'ok': 'true',
@@ -30,7 +30,7 @@ class TestUtils(unittest.TestCase):
             'C111', channels.get_channel_id('general')
         )
 
-    @patch('slacker.requests')
+    @patch('slackest.requests')
     def test_get_channel_id_without_channel(self, mock_requests):
         text = {
             'ok': 'true',
