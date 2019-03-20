@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import datetime
 import json
 import requests
@@ -19,14 +20,13 @@ import time
 from slackest.utils import get_item_id_by_name
 
 
-__version__ = '0.12.0'
-
 API_BASE_URL = 'https://slack.com/api/{api}'
 DEFAULT_TIMEOUT = 10
 DEFAULT_RETRIES = 0
 # seconds to wait after a 429 error if Slack's API doesn't provide one
 DEFAULT_WAIT = 20
 
+__version__ = '0.12.0'
 __all__ = ['Error', 'Response', 'BaseAPI', 'API', 'Auth', 'Users', 'Groups',
            'Conversation', 'Channels', 'Chat', 'IM', 'IncomingWebhook',
            'Search', 'Files', 'Stars', 'Emoji', 'Presence', 'RTM', 'Team',
@@ -64,6 +64,18 @@ class BaseAPI(object):
         self.retry_wait_secs = 1
 
     def _request(self, method, api, **kwargs):
+        """
+        Internal request call, with rate limiting retries
+
+        :param method: The method to call: GET, POST, etc.
+        :type method: :class:`Request <Request>` object
+        :param api: The API endpoint
+        :type api: str
+        :param kwargs: Various keyword arguments that could be passed to the request
+        :type kwargs: dict
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         if self.token:
             kwargs.setdefault('params', {})['token'] = self.token
 
@@ -103,17 +115,51 @@ class BaseAPI(object):
         return response
 
     def _session_get(self, url, params=None, **kwargs):
+        """
+        Internal request GET call with session
+
+        :param url: The URL to request
+        :type url: str
+        :param params: Dictionary containing URL request parameters (headers, etc.)
+        :type params: dict
+        :param kwargs: Various keyword arguments that could be passed to the GET
+        :type kwargs: dict
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         kwargs.setdefault('allow_redirects', True)
         return self.session.request(
             method='get', url=url, params=params, **kwargs
         )
 
     def _session_post(self, url, data=None, **kwargs):
+        """
+        Internal request POST call with session
+
+        :param url: The URL to request
+        :type url: str
+        :param params: Dictionary containing request data
+        :type params: dict
+        :param kwargs: Various keyword arguments that could be passed to the POST
+        :type kwargs: dict
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.session.request(
             method='post', url=url, data=data, **kwargs
         )
 
     def get(self, api, **kwargs):
+        """
+        External request GET call, wraps around internal _request.get
+
+        :param api: The API endpoint to connect to
+        :type api: str
+        :param kwargs: Various keyword arguments that could be passed to the GET
+        :type kwargs: dict
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         try:
             return self._request(
                 self._session_get if self.session else requests.get,
@@ -130,6 +176,16 @@ class BaseAPI(object):
 
 
     def post(self, api, **kwargs):
+        """
+        External request POST call, wraps around internal _request.post
+
+        :param api: The API endpoint to connect to
+        :type api: str
+        :param kwargs: Various keyword arguments that could be passed to the POST
+        :type kwargs: dict
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self._request(
             self._session_post if self.session else requests.post,
             api, **kwargs
@@ -138,6 +194,16 @@ class BaseAPI(object):
 
 class API(BaseAPI):
     def test(self, error=None, **kwargs):
+        """
+        Allows access to the Slack API test endpoint
+
+        :param error: The API error
+        :type error: str
+        :param kwargs: Various keyword arguments that could be passed to the request
+        :type kwargs: dict
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         if error:
             kwargs['error'] = error
 
@@ -146,14 +212,38 @@ class API(BaseAPI):
 
 class Auth(BaseAPI):
     def test(self):
+        """
+        Allows access to the Slack API test endpoint
+
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('auth.test')
 
     def revoke(self, test=True):
+        """
+        Allows access to the Slack API test endpoint
+
+        :param test: Boolean to run the test
+        :type test: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('auth.revoke', data={'test': int(test)})
 
 
 class Dialog(BaseAPI):
     def open(self, dialog, trigger_id):
+        """
+        Opens a dialog with a user
+
+        :param dialog: JSON-encoded dialog definition
+        :type dialog: json
+        :param trigger_id: The trigger to post to the user.
+        :type trigger_id: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('dialog.open',
                          data={
                              'dialog': json.dumps(dialog),
@@ -163,12 +253,36 @@ class Dialog(BaseAPI):
 
 class UsersProfile(BaseAPI):
     def get(self, user=None, include_labels=False):
+        """
+        Gets a Slack user's profile
+
+        :param user: User to retrieve profile info for
+        :type user: str
+        :param include_labels: Include labels for each ID in custom profile fields
+        :type include_labels: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return super(UsersProfile, self).get(
             'users.profile.get',
             params={'user': user, 'include_labels': int(include_labels)}
         )
 
     def set(self, user=None, profile=None, name=None, value=None):
+        """
+        Gets a Slack user's profile
+
+        :param user: ID of user to change
+        :type user: str
+        :param profile: Collection of key:value pairs presented as a URL-encoded JSON hash
+        :type profile: str
+        :param name: Name of a single key to set
+        :type name: str
+        :param value: Value to set a single key to
+        :type value: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('users.profile.set',
                          data={
                              'user': user,
@@ -181,6 +295,22 @@ class UsersProfile(BaseAPI):
 class UsersAdmin(BaseAPI):
     def invite(self, email, channels=None, first_name=None,
                last_name=None, resend=True):
+        """
+        Invites a user to channel(s) via email. Looks to be deprecated.
+
+        :param email: Email of the user to invite to a channel(s)
+        :type email: str
+        :param channels: A CSV of channels for the invite.
+        :type channels: str
+        :param first_name: First name of the invitee
+        :type first_name: str
+        :param last_name: Last name of the invitee
+        :type last_name: str
+        :param resend: Whether or not this invite is a resend
+        :type resend: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('users.admin.invite',
                          params={
                              'email': email,
@@ -206,19 +336,47 @@ class Users(BaseAPI):
         return self._admin
 
     def info(self, user, include_locale=False):
+        """
+        Returns information about the user
+
+        :param user: The Slack user ID of the user to look up
+        :type user: str
+        :param include_locale: Whether or not to include the user's locale
+        :type include_locale: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('users.info', params={'user': user, 'include_locale': include_locale})
 
     def list(self, presence=False):
+        """
+        List all users in a Slack team.
+
+        :param presence: Whether to include presence data in the output
+        :type presence: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('users.list', params={'presence': int(presence)})
 
     def list_all_users(self, presence=False, limit=500):
-        response = self.get('users.list', 
+        """
+        Returns information about the user
+
+        :param presence: Whether to include presence data in the output
+        :type presence: bool
+        :param limit: The maximum number of users to return
+        :type limit: int
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
+        response = self.get('users.list',
                 params={'presence': int(presence), 'limit': limit})
         members = response.body.get('members', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
-            response = self.get('users.list', 
-                    params={'presence': int(presence), 'limit': limit, 
+            response = self.get('users.list',
+                    params={'presence': int(presence), 'limit': limit,
                             'cursor': next_cursor})
             members.extend(response.body.get('members', []))
             next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
@@ -229,38 +387,127 @@ class Users(BaseAPI):
         return response
 
     def identity(self):
+        """
+        Retrieves the user's identity: name, ID, team
+
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('users.identity')
 
     def set_active(self):
+        """
+        Sets the user object to active. DEPRECATED
+
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('users.setActive')
 
     def get_presence(self, user):
+        """
+        Gets the presence of the Slack user
+
+        :param user: The Slack user ID
+        :type user: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('users.getPresence', params={'user': user})
 
     def set_presence(self, presence):
+        """
+        Sets the presence of the current Slack user
+
+        :param presence: The presence level of the user: either `auto` or `away`
+        :type presence: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('users.setPresence', data={'presence': presence})
 
     def get_user_id(self, user_name):
-        members = self.list().body['members']
+        """
+        Gets a user ID according to the user's name
+
+        :param user_name: The user's name
+        :type user_name: str
+        :return: Returns the user ID
+        :rtype: str
+        """
+        members = self.list_all_users().body['members']
         return get_item_id_by_name(members, user_name)
 
 
 class Groups(BaseAPI):
     def create(self, name):
+        """
+        Creates a group with the name
+
+        :param name: The group's name
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.create', data={'name': name})
 
     def create_child(self, channel):
+        """
+        Takes an existing private channel and performs the following steps:
+
+        * Renames the existing private channel (from "example" to "example-archived").
+        * Archives the existing private channel.
+        * Creates a new private channel with the name of the existing private channel.
+        * Adds all members of the existing private channel to the new private channel.
+
+        :param channel: Private channel to clone and archive
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.createChild', data={'channel': channel})
 
     def info(self, channel):
+        """
+        Returns the private channel's information
+
+        :param channel: The private channel's ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('groups.info', params={'channel': channel})
 
     def list(self, exclude_archived=None):
+        """
+        Lists the private channels that the user has access to
+
+        :param exclude_archived: Don't include archived private channels in the returned list
+        :type exclude_archived: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('groups.list',
                         params={'exclude_archived': exclude_archived})
 
     def history(self, channel, latest=None, oldest=None, count=None,
                 inclusive=None):
+        """
+        Fetches history of messages and events from a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param latest: End of time range to include in results
+        :type latest: str
+        :param oldest: Start of time range to include in results
+        :type oldest: str
+        :param count: The number of messages to return
+        :type count: int
+        :param inclusive: Include messages with latest or oldest timestamp in results
+        :type inclusive: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('groups.history',
                         params={
                             'channel': channel,
@@ -271,62 +518,216 @@ class Groups(BaseAPI):
                         })
 
     def invite(self, channel, user):
+        """
+        Invites a user to a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param user: The user ID
+        :type user: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.invite',
                          data={'channel': channel, 'user': user})
 
     def kick(self, channel, user):
+        """
+        Removes a user from a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param user: The user ID
+        :type user: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.kick',
                          data={'channel': channel, 'user': user})
 
     def leave(self, channel):
+        """
+        Allows a user object to remove themselves from a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.leave', data={'channel': channel})
 
     def mark(self, channel, ts):
+        """
+        Moves the read cursor in a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param ts: The timestamp of the most recently seen message
+        :type ts: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.mark', data={'channel': channel, 'ts': ts})
 
     def rename(self, channel, name):
+        """
+        Renames a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param name: The new user-friendly name of the private channel
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.rename',
                          data={'channel': channel, 'name': name})
 
     def replies(self, channel, thread_ts):
+        """
+        Retrieve a thread of messages posted to a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param thread_ts: Unique identifier of a thread's parent message
+        :type thread_ts: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('groups.replies',
                         params={'channel': channel, 'thread_ts': thread_ts})
 
     def archive(self, channel):
+        """
+        Archives a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.archive', data={'channel': channel})
 
     def unarchive(self, channel):
+        """
+        Unarchives a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.unarchive', data={'channel': channel})
 
     def open(self, channel):
+        """
+        Opens a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.open', data={'channel': channel})
 
     def close(self, channel):
+        """
+        Closes a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.close', data={'channel': channel})
 
     def set_purpose(self, channel, purpose):
+        """
+        Sets the purpose of a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param purpose: The purpose
+        :type purpose: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.setPurpose',
                          data={'channel': channel, 'purpose': purpose})
 
     def set_topic(self, channel, topic):
+        """
+        Sets the topic of a private channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param topic: The topic
+        :type topic: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('groups.setTopic',
                          data={'channel': channel, 'topic': topic})
 
 
 class Channels(BaseAPI):
     def create(self, name):
+        """
+        Creates a public channel
+
+        :param name: The name
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.create', data={'name': name})
 
     def info(self, channel):
+        """
+        Retrieves information about a public channel
+
+        :param name: The channel ID
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('channels.info', params={'channel': channel})
 
     def list(self, exclude_archived=None, exclude_members=None):
+        """
+        Lists channels
+
+        :param exclude_archived: Exclude archived channels
+        :type exclude_archived: bool
+        :param exclude_members: Exclude members from being listed
+        :type exclude_members: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('channels.list',
                         params={'exclude_archived': exclude_archived,
                                 'exclude_members': exclude_members})
 
     def history(self, channel, latest=None, oldest=None, count=None,
                 inclusive=False, unreads=False):
+        """
+        Fetches history of messages and events from a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param latest: End of time range to include in results
+        :type latest: str
+        :param oldest: Start of time range to include in results
+        :type oldest: str
+        :param count: The number of messages to return
+        :type count: int
+        :param inclusive: Include messages with latest or oldest timestamp in results
+        :type inclusive: bool
+        :param unreads: Include `unread_count_display` in the output
+        :type unreads: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('channels.history',
                         params={
                             'channel': channel,
@@ -338,46 +739,156 @@ class Channels(BaseAPI):
                         })
 
     def mark(self, channel, ts):
+        """
+        Moves the read cursor in a public channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param ts: The timestamp of the most recently seen message
+        :type ts: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.mark',
                          data={'channel': channel, 'ts': ts})
 
     def join(self, name):
+        """
+        Allows a user object to join a channel
+
+        :param name: The channel name (#general)
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.join', data={'name': name})
 
     def leave(self, channel):
+        """
+        Allows a user object to leave a channel
+
+        :param name: The channel ID
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.leave', data={'channel': channel})
 
     def invite(self, channel, user):
+        """
+        Invites a user to a private channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param user: The user ID
+        :type user: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.invite',
                          data={'channel': channel, 'user': user})
 
     def kick(self, channel, user):
+        """
+        Removes a user from a channel
+
+        :param channel: The private channel ID
+        :type channel: str
+        :param user: The user ID
+        :type user: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.kick',
                          data={'channel': channel, 'user': user})
 
     def rename(self, channel, name):
+        """
+        Renames a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param name: The new user-friendly name of the channel
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.rename',
                          data={'channel': channel, 'name': name})
 
     def replies(self, channel, thread_ts):
+        """
+        Retrieve a thread of messages posted to a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param thread_ts: Unique identifier of a thread's parent message
+        :type thread_ts: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.get('channels.replies',
                         params={'channel': channel, 'thread_ts': thread_ts})
 
     def archive(self, channel):
+        """
+        Archives a public channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.archive', data={'channel': channel})
 
     def unarchive(self, channel):
+        """
+        Unarchives a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.unarchive', data={'channel': channel})
 
     def set_purpose(self, channel, purpose):
+        """
+        Sets the purpose of a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param purpose: The purpose
+        :type purpose: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.setPurpose',
                          data={'channel': channel, 'purpose': purpose})
 
     def set_topic(self, channel, topic):
+        """
+        Sets the topic of a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param topic: The topic
+        :type topic: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('channels.setTopic',
                          data={'channel': channel, 'topic': topic})
 
     def get_channel_id(self, channel_name):
+        """
+        Gets a channel ID according to the channel's name
+
+        :param channel_name: The channel's name
+        :type channel_name: str
+        :return: Returns the channel ID
+        :rtype: str
+        """
         channels = self.list().body['channels']
         return get_item_id_by_name(channels, channel_name)
 
@@ -396,10 +907,10 @@ class Conversation(BaseAPI):
 
     def create(self, name, is_private=True, user_ids=[]):
         user_id_string = ",".join(user_ids)
-        return self.post('conversations.create', 
+        return self.post('conversations.create',
                 data={'name': name, 'is_private': is_private, 'user_ids': user_id_string})
 
-    def history(self, channel, cursor=None, inclusive=0, limit=100, 
+    def history(self, channel, cursor=None, inclusive=0, limit=100,
             latest=timestamp, oldest=0):
         return self.post('conversations.history',
                 data={'channel': channel})
@@ -421,7 +932,7 @@ class Conversation(BaseAPI):
         return response
 
     def info(self, channel, include_locale=False, include_num_members=False):
-        return self.post('conversations.info', data={'channel': channel, 
+        return self.post('conversations.info', data={'channel': channel,
             'include_locale': include_locale,'include_num_members': include_num_members})
 
     def invite(self, channel, user_ids=[]):
