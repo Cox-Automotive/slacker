@@ -939,6 +939,7 @@ class Conversation(BaseAPI):
                 data={'name': name, 'is_private': is_private, 'user_ids': user_id_string})
 
     def history(self, channel, cursor=None, inclusive=0, limit=100,
+            latest=timestamp, oldest=0):
         """
         Fetches history of messages and events from a channel
 
@@ -953,7 +954,6 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-            latest=timestamp, oldest=0):
         return self.post('conversations.history',
                 data={'channel': channel})
 
