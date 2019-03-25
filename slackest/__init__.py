@@ -900,23 +900,83 @@ class Conversation(BaseAPI):
     timestamp = float((time.mktime(datetime.datetime.now().timetuple())+datetime.datetime.now().microsecond/1000000.0))
 
     def archive(self, channel):
+        """
+        Archives a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('conversation.archive', data={'channel': channel})
 
     def close(self, channel):
+        """
+        Closes a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('conversations.close', data={'channel': channel})
 
     def create(self, name, is_private=True, user_ids=[]):
+        """
+        Closes a channel
+
+        :param name: The channel name
+        :type name: str
+        :param is_private: Determines if channel is private (like a group)
+        :type is_private: bool
+        :param user_ids: A list of User IDs to add to the channel
+        :type user_ids: list[str]
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         user_id_string = ",".join(user_ids)
         return self.post('conversations.create',
                 data={'name': name, 'is_private': is_private, 'user_ids': user_id_string})
 
     def history(self, channel, cursor=None, inclusive=0, limit=100,
+        """
+        Fetches history of messages and events from a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param cursor: The cursor ID of the next set of history
+        :type cursor: str
+        :param inclusive: Include messages with latest or oldest timestamp in results
+        :type inclusive: bool
+        :param limit: The number of messages to return
+        :type limit: int
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
             latest=timestamp, oldest=0):
         return self.post('conversations.history',
                 data={'channel': channel})
 
     def history_all(self, channel, cursor=None, inclusive=0, limit=100,
                     latest=timestamp, oldest=0):
+        """
+        Fetches history of messages and events from a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param cursor: the cursor id of the next set of history
+        :type cursor: str
+        :param inclusive: Include messages with latest or oldest timestamp in results
+        :type inclusive: bool
+        :param limit: The number of messages to return
+        :type limit: int
+        :param latest: End of time range to include in results
+        :type latest: str
+        :type oldest: str
+        :param count: The number of messages to return
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         response = self.get('conversations.history',
                             params={'channel': channel})
         conversations = response.body.get('messages', [])
@@ -932,29 +992,105 @@ class Conversation(BaseAPI):
         return response
 
     def info(self, channel, include_locale=False, include_num_members=False):
+        """
+        Gets information about a channel.
+
+        :param channel: The channel ID
+        :type channel: str
+        :param include_locale: Include the locale of the members in the channel
+        :type include_locale: bool
+        :param include_num_members: Include the number of members in the channel
+        :type include_num_members: bool
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('conversations.info', data={'channel': channel,
             'include_locale': include_locale,'include_num_members': include_num_members})
 
     def invite(self, channel, user_ids=[]):
+        """
+        Invites users to a channel
+
+        :param name: The channel ID
+        :type name: str
+        :param user_ids: A list of User IDs to invite to the channel
+        :type user_ids: list[str]
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         user_id_string=user_ids
         if type(user_ids) is list:
             user_id_string = ",".join(user_ids)
         return self.post('conversations.invite', data={'channel': channel,'users': user_id_string})
 
     def join(self, channel):
+        """
+        Allows a user object to join a channel
+
+        :param name: The channel ID
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('conversations.join', data={'channel': channel})
 
     def kick(self, channel, user):
+        """
+        Removes a user from a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param user: The user ID
+        :type user: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('conversations.kick', data={'channel': channel, 'user': user})
 
     def leave(self, channel):
+        """
+        Allows a user object to leave a channel
+
+        :param name: The channel ID
+        :type name: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('conversations.leave', data={'channel': channel})
 
     def list(self, cursor=None, exclude_archived=False, limit=100, types="public_channel"):
+        """
+        Lists channels
+
+        :param cursor: the cursor id of the next set of the list
+        :type cursor: str
+        :param exclude_archived: Exclude archived channels
+        :type exclude_archived: bool
+        :type limit: int
+        :param latest: End of time range to include in results
+        :type latest: int
+        :param types: The type of channel to return, can be one of public_channel, private_channel
+        :type types: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         return self.post('conversations.list', data={'cursor': cursor, 'exclude_archived': exclude_archived,
             'limit': limit, 'types': types})
 
     def list_all(self, exclude_archived=False, limit=100, types="public_channel"):
+        """
+        Lists all channels
+
+        :param exclude_archived: Exclude archived channels
+        :type exclude_archived: bool
+        :type limit: int
+        :param latest: End of time range to include in results
+        :type latest: int
+        :param types: The type of channel to return, can be one of public_channel, private_channel
+        :type types: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
         response = self.get('conversations.list',
                             params={'exclude_archived': exclude_archived, 'limit': limit, 'types': types})
         channels = response.body.get('channels', [])
