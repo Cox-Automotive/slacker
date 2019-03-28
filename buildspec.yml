@@ -3,10 +3,14 @@ version: 0.2
 phases:
   install:
     commands:
-      - pip install -r requirements-dev.txt
+      - pip install -q -r requirements-cicd.txt
   pre_build:
-    commands:   
-      - tox
+    commands:
+      - mkdir -p ${CODEBUILD_SRC_DIR}/reports/lint ${CODEBUILD_SRC_DIR}/reports/tests
+      - pylint --exit-zero --jobs=4 --reports=y ./slackest > reports/lint/${CODEBUILD_BUILD_ID}-lint-output.txt
+      - tail -2 ${CODEBUILD_SRC_DIR}/reports/lint/${CODEBUILD_BUILD_ID}-lint-output.txt | sed 's/Your code has been rated at \([0-9]*.[0-9]*\)\/10/\1/' | sed '/^$/d' > ${CODEBUILD_SRC_DIR}/reports/lint/${CODEBUILD_BUILD_ID}-lint-score.txt
+      - anybadge -l pylint -v `cat ${CODEBUILD_SRC_DIR}/reports/lint/${CODEBUILD_BUILD_ID}-lint-score.txt` -f ${CODEBUILD_SRC_DIR}/reports/lint/pylint.svg 2=red 4=orange 8=yellow 10=green
+      - tox > ${CODEBUILD_SRC_DIR}/reports/tests/${CODEBUILD_BUILD_ID}-test-output.txt
   build:
     commands:
       - mkdir -p dist
@@ -19,3 +23,11 @@ artifacts:
     - $CODEBUILD_SRC_DIR/dist/*.tar.gz
   base-directory: dist
   discard-paths: yes
+  secondary-artifacts:
+    reports:
+      files:
+        - $CODEBUILD_SRC_DIR/reports/lint/*
+        - $CODEBUILD_SRC_DIR/reports/tests/*
+      name: slackest-reports-$CODEBUILD_BUILD_ID
+      discard-paths: yes
+      base-directory: reports
