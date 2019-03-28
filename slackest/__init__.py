@@ -1882,8 +1882,8 @@ class Slackest(object):
     def create_channel(self, channel_name, is_private=True, users=[]):
         return self.conversation.create(channel_name, is_private, users)
 
-    def get_channels(self, exclude_archive, limit, type):
-        return self.conversation.list_all(exclude_archived=exclude_archive, limit=limit, types=type)
+    def get_channels(self, exclude_archive, limit, types):
+        return self.conversation.list_all(exclude_archived=exclude_archive, limit=limit, types=types)
 
     def list_all_users(self):
         return self.users.list_all_users()

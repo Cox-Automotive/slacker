@@ -3,10 +3,12 @@ version: 0.2
 phases:
   install:
     commands:
-      - pip install -r requirements-dev.txt
+      - pip install -q -r requirements-cicd.txt
   pre_build:
-    commands:   
-      - tox
+    commands:
+      - mkdir -p reports/lint reports/tests
+      - pylint --exit-zero --jobs=4 --reports=y --output-format=json ./slackest >> reports/lint/${CODEBUILD_BUILD_ID}-lint-output.json
+      - tox >> reports/tests/${CODEBUILD_BUILD_ID}-test-output.txt
   build:
     commands:
       - mkdir -p dist
@@ -19,3 +21,11 @@ artifacts:
     - $CODEBUILD_SRC_DIR/dist/*.tar.gz
   base-directory: dist
   discard-paths: yes
+  secondary-artifacts:
+    reports:
+      files:
+        - $CODEBUILD_SRC_DIR/reports/lint/*.json
+        - $CODEBUILD_SRC_DIR/reports/tests/*.txt
+      name: slackest-reports-$CODEBUILD_BUILD_ID
+      discard-paths: yes
+      base-directory: reports
