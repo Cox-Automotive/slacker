@@ -15,7 +15,9 @@ phases:
     commands:
       - mkdir -p dist
       - python setup.py sdist bdist_wheel
-
+  post_build:
+    commands:
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/reports/lint/pylint.svg s3://slackest/pylint.svg
 artifacts:
   name: slackest-$CODEBUILD_BUILD_ID
   files:
