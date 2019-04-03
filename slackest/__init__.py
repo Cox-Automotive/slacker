@@ -26,7 +26,7 @@ DEFAULT_RETRIES = 0
 # seconds to wait after a 429 error if Slack's API doesn't provide one
 DEFAULT_WAIT = 20
 
-__version__ = '0.13.0'
+__version__ = '0.13.1'
 __all__ = ['Error', 'Response', 'BaseAPI', 'API', 'Auth', 'Users', 'Groups',
            'Conversation', 'Channels', 'Chat', 'IM', 'IncomingWebhook',
            'Search', 'Files', 'Stars', 'Emoji', 'Presence', 'RTM', 'Team',
