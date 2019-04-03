@@ -1144,13 +1144,13 @@ class Conversation(BaseAPI):
         return response
 
     def setPurpose(self, channel, purpose):
-        self.post('conversations.setPurpose', data={'channel': channel, 'purpose': purpose})
+        return self.post('conversations.setPurpose', data={'channel': channel, 'purpose': purpose})
 
     def setTopic(self, channel, topic):
-        self.post('conversations.setTopic', data={'channel': channel, 'topic': topic})
+        return self.post('conversations.setTopic', data={'channel': channel, 'topic': topic})
 
     def unarchive(self, channel):
-        self.post('conversations.unarchive', data={'channel': channel})
+        return self.post('conversations.unarchive', data={'channel': channel})
 
 
 class Chat(BaseAPI):
@@ -1915,5 +1915,5 @@ class Slackest(object):
     def set_topic(self, channel_id, topic):
         return self.conversation.setTopic(channel_id, topic)
 
-    def upload_file(self, filename, channel):
-        return self.files.upload(filename, channel)
+    def upload_file(self, filename, channels):
+        return self.files.upload(filename, channels=channels)
