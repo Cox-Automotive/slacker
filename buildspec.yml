@@ -18,7 +18,7 @@ phases:
   post_build:
     commands:
       - aws s3 cp ${CODEBUILD_SRC_DIR}/reports/lint/pylint.svg s3://slackest/pylint.svg
-      - twine upload -u $(aws secretsmanager get-secret-value --secret-id PyPI/Testing --query SecretString | jq --raw-output | jq -r '.username') -p $(aws secretsmanager get-secret-value --secret-id PyPI/Testing --query SecretString | jq --raw-output | jq -r '.password') --repository-url https://test.pypi.org/legacy/ dist/*
+      - PUSER=$(aws secretsmanager get-secret-value --secret-id PyPI/Testing --query SecretString | jq --raw-output | jq -r '.username') PPASSWD=$(aws secretsmanager get-secret-value --secret-id PyPI/Testing --query SecretString | jq --raw-output | jq -r '.password') twine upload -u $PUSER -p $PPASSWD --repository-url https://test.pypi.org/legacy/ dist/*
 artifacts:
   name: slackest-$CODEBUILD_BUILD_ID
   files:
