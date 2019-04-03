@@ -48,7 +48,7 @@ Installation
 
 .. code-block:: bash
 
-    $ pip install git+https://github.com/Cox-Automotive/slackest
+    $ pip install slackest
 
 CICD
 ====
@@ -89,8 +89,6 @@ TODO
 ====
 
 * Test completion, full coverage
-* CICD (in progress)
-* Publish to PyPI
 * Documentation on RTD
 
 
