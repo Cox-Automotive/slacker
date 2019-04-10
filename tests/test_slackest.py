@@ -39,7 +39,7 @@ class TestUtils(unittest.TestCase):
             status_code=200, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        channel_id = sc.get_channels(False, 500, ['public_channel','private_channel','mpim','im']).body['channels'][0].get('id')
+        channel_id = sc.get_channels(False, ['public_channel','private_channel','mpim','im']).body['channels'][0].get('id')
         self.assertEqual('G0AKFJBEU', channel_id)
 
     @patch('slackest.requests')
@@ -49,7 +49,7 @@ class TestUtils(unittest.TestCase):
             status_code=404, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        error = sc.get_channels(False, 500, ['public_channel','private_channel','mpim','im']).body['error']
+        error = sc.get_channels(False, ['public_channel','private_channel','mpim','im']).body['error']
         self.assertEqual('invalid_auth', error)
 
     # list_all_users
@@ -103,7 +103,7 @@ class TestUtils(unittest.TestCase):
             status_code=200, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        second_user = sc.history_all('asd', 500).body['messages'][1].get('user')
+        second_user = sc.history_all('asd').body['messages'][1].get('user')
         self.assertEqual('U061F7AUR', second_user)
 
     @patch('slackest.requests')
@@ -113,7 +113,7 @@ class TestUtils(unittest.TestCase):
             status_code=404, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        error = sc.history_all('NOTFOUND', 500).body['error']
+        error = sc.history_all('NOTFOUND').body['error']
         self.assertEqual('channel_not_found', error)
 
     # post_message_to_channel
