@@ -25,7 +25,7 @@ DEFAULT_TIMEOUT = 10
 DEFAULT_RETRIES = 0
 # seconds to wait after a 429 error if Slack's API doesn't provide one
 DEFAULT_WAIT = 20
-DEFAULT_API_SLEEP = 1.2
+DEFAULT_API_SLEEP = 5
 
 __version__ = '0.13.2'
 __all__ = ['Error', 'Response', 'BaseAPI', 'API', 'Auth', 'Users', 'Groups',
@@ -37,7 +37,7 @@ __all__ = ['Error', 'Response', 'BaseAPI', 'API', 'Auth', 'Users', 'Groups',
            'Dialog']
 
 
-class Error(Exception):
+class SlackestError(Exception):
     pass
 
 
@@ -111,7 +111,7 @@ class BaseAPI(object):
 
         response = Response(response.text)
         if not response.successful:
-            raise Error(response.error)
+            raise SlackestError(response.error)
 
         return response
 
@@ -381,8 +381,12 @@ class Users(BaseAPI):
         while next_cursor:
             response = self.get('users.list',
                     params={'include_locale': str(include_locale).lower(), 'cursor': next_cursor})
-            members.extend(response.body.get('members', []))
-            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+            if response is not None:
+                members.extend(response.body.get('members', []))
+                next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+                time.sleep(DEFAULT_API_SLEEP)
+            else:
+                raise SlackestError("Null response received. You've probably hit the rate limit.")
 
         if members:
             response.body['members'] = members
@@ -984,8 +988,12 @@ class Conversation(BaseAPI):
         while next_cursor:
             response = self.get('conversations.history',
                                 params={'channel':channel,'cursor': next_cursor})
-            conversations.extend(response.body.get('messages', []))
-            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+            if response is not None:
+                conversations.extend(response.body.get('messages', []))
+                next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+                time.sleep(DEFAULT_API_SLEEP)
+            else:
+                raise SlackestError("Null response received. You've probably hit the rate limit.")
 
         if conversations:
             response.body['messages'] = conversations
@@ -1096,9 +1104,12 @@ class Conversation(BaseAPI):
             response = self.get('conversations.list',
                                 params={'exclude_archived': str(exclude_archived).lower(), 
                                         'types': types, 'cursor': next_cursor})
-            channels.extend(response.body.get('channels', []))
-            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
-            time.sleep(DEFAULT_API_SLEEP)
+            if response is not None:
+                channels.extend(response.body.get('channels', []))
+                next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+                time.sleep(DEFAULT_API_SLEEP)
+            else:
+                raise SlackestError("Null response received. You've probably hit the rate limit.")
 
         if channels:
             response.body['channels'] = channels
@@ -1134,9 +1145,12 @@ class Conversation(BaseAPI):
         while next_cursor:
             response = self.get('conversations.members',
                     params={'channel': channel, 'cursor': next_cursor})
-            members.extend(response.body.get('members', []))
-            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
-            time.sleep(DEFAULT_API_SLEEP)
+            if response is not None:
+                members.extend(response.body.get('members', []))
+                next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+                time.sleep(DEFAULT_API_SLEEP)
+            else:
+                raise SlackestError("Null response received. You've probably hit the rate limit.")
 
         if members:
             response.body['members'] = members
@@ -1216,9 +1230,12 @@ class Conversation(BaseAPI):
         while next_cursor:
             response = self.get('conversations.replies',
                                 params={'channel': channel, 'ts': ts, 'cursor': next_cursor})
-            replies.extend(response.body.get('message', []))
-            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
-            time.sleep(DEFAULT_API_SLEEP)
+            if response is not None:
+                replies.extend(response.body.get('message', []))
+                next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+                time.sleep(DEFAULT_API_SLEEP)
+            else:
+                raise SlackestError("Null response received. You've probably hit the rate limit.")
 
         if replies:
             response.body['message'] = replies
