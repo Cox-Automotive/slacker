@@ -83,7 +83,7 @@ https://api.slack.com/methods
 Slackest
 --------
 
-Coming soon!
+https://s3.amazonaws.com/slackest/index.html
 
 TODO
 ====
