@@ -27,7 +27,7 @@ DEFAULT_RETRIES = 0
 DEFAULT_WAIT = 20
 DEFAULT_API_SLEEP = 1.2
 
-__version__ = '0.13.1'
+__version__ = '0.13.2'
 __all__ = ['Error', 'Response', 'BaseAPI', 'API', 'Auth', 'Users', 'Groups',
            'Conversation', 'Channels', 'Chat', 'IM', 'IncomingWebhook',
            'Search', 'Files', 'Stars', 'Emoji', 'Presence', 'RTM', 'Team',
