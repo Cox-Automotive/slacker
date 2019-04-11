@@ -349,10 +349,12 @@ class Users(BaseAPI):
         """
         return self.get('users.info', params={'user': user, 'include_locale': include_locale})
 
-    def list(self, include_locale=True, limit=500):
+    def list(self, cursor=None, include_locale=True, limit=500):
         """
         List all users in a Slack team.
 
+        :param cursor: Cursor pagination
+        :type cursor: str
         :param include_locale: Receive the user's locale
         :type include_locale: bool
         :param limit: The maximum number of users to return
@@ -360,7 +362,9 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('users.list', params={'include_locale': int(include_locale)})
+        return self.get('users.list', 
+                params={'include_locale': int(include_locale), 
+                    'limit': limit, 'cursor': cursor})
 
     def list_all(self, include_locale=True):
         """
@@ -1165,7 +1169,7 @@ class Conversation(BaseAPI):
         """
         self.post('conversations.rename', data={'channel': channel, 'name': name})
 
-    def replies(self, channel, ts, cursor=None, inclusive=0, limit=100,
+    def replies(self, channel, ts, cursor=None, inclusive=False, limit=100,
             latest=timestamp, oldest=0):
         """
         Fetches replies in a thread of messages
@@ -1188,7 +1192,7 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.post('conversations.replies',
-                data={'channel': channel, 'ts': ts, 'cursor': cursor, 'inclusive': inclusive,
+                data={'channel': channel, 'ts': ts, 'cursor': cursor, 'inclusive': int(inclusive),
                     'limit': limit, 'latest': latest, 'oldest': oldest})
 
     def replies_all(self, channel, ts):
