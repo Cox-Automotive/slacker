@@ -17,7 +17,9 @@ phases:
       - python setup.py sdist bdist_wheel
   post_build:
     commands:
+      - export PYTHONPATH=$(pwd):$PYTHONPATH && mkdir docs && cd docs && sphinx-apidoc ../slackest -F -o . && make html
       - aws s3 cp ${CODEBUILD_SRC_DIR}/reports/lint/pylint.svg s3://slackest/pylint.svg
+      - aws s3 cp --recursive ${CODEBUILD_SRC_DIR}/docs/_build/html/ s3://slackest/
       - twine upload -u $(aws secretsmanager get-secret-value --secret-id PyPI --query SecretString --output text | jq -r '.username') -p $(aws secretsmanager get-secret-value --secret-id PyPI --query SecretString --output text | jq -r '.password') dist/*
 artifacts:
   name: slackest-$CODEBUILD_BUILD_ID
