@@ -975,8 +975,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        response = self.get('conversations.history',
-                            params={'channel': channel})
+        response = self.get('conversations.history', params={'channel': channel})
         conversations = response.body.get('messages', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
