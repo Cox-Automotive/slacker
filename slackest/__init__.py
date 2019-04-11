@@ -976,8 +976,8 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         response = self.get('conversations.history',
-                data={'channel': channel, 'inclusive': int(True),
-                    'latest': self.timestamp, 'oldest': 0})
+                data={'channel': channel, 'inclusive': int(True)})
+        print('made first call')
         conversations = response.body.get('messages', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
@@ -985,6 +985,8 @@ class Conversation(BaseAPI):
                                 params={'channel':channel,'cursor': next_cursor})
             conversations.extend(response.body.get('messages', []))
             next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+            print('made next call')
+            time.sleep(DEFAULT_API_SLEEP)
 
         if conversations:
             response.body['messages'] = conversations
