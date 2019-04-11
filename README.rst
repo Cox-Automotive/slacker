@@ -89,7 +89,6 @@ TODO
 ====
 
 * Test completion, full coverage
-* Documentation on RTD
 
 
 .. |build status| image:: https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoibStlNTVWVjBDMk1hOFU4ekRiNlNRdExXeCtSZFFsdlN0UjRnZzJsU2VNaDBqc3IwRnlmM2lSVG1zcjh2NEZ0WVoyQ0hwVStxU3VoblRIc2NxVjRYRU5vPSIsIml2UGFyYW1ldGVyU3BlYyI6Im5NSjdaT1lFM2hKaWxiR1IiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master
