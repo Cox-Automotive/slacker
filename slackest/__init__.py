@@ -266,7 +266,7 @@ class UsersProfile(BaseAPI):
         """
         return super(UsersProfile, self).get(
             'users.profile.get',
-            params={'user': user, 'include_labels': int(include_labels)}
+            params={'user': user, 'include_labels': str(include_labels).lower()}
         )
 
     def set(self, user=None, profile=None, name=None, value=None):
@@ -297,7 +297,7 @@ class UsersAdmin(BaseAPI):
     def invite(self, email, channels=None, first_name=None,
                last_name=None, resend=True):
         """
-        Invites a user to channel(s) via email. Looks to be deprecated.
+        DEPRECATED - Invites a user to channel(s) via email. Looks to be deprecated.
 
         :param email: Email of the user to invite to a channel(s)
         :type email: str
@@ -347,7 +347,7 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('users.info', params={'user': user, 'include_locale': include_locale})
+        return self.get('users.info', params={'user': user, 'include_locale': str(include_locale).lower()})
 
     def list(self, cursor=None, include_locale=True, limit=500):
         """
@@ -363,7 +363,7 @@ class Users(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.get('users.list', 
-                params={'include_locale': int(include_locale), 
+                params={'include_locale': str(include_locale).lower(), 
                     'limit': limit, 'cursor': cursor})
 
     def list_all(self, include_locale=True):
@@ -375,12 +375,12 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        response = self.get('users.list', params={'include_locale': int(include_locale)})
+        response = self.get('users.list', params={'include_locale': str(include_locale).lower()})
         members = response.body.get('members', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('users.list',
-                    params={'include_locale': int(include_locale), 'cursor': next_cursor})
+                    params={'include_locale': str(include_locale).lower(), 'cursor': next_cursor})
             members.extend(response.body.get('members', []))
             next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
 
@@ -481,20 +481,23 @@ class Groups(BaseAPI):
         """
         return self.get('groups.info', params={'channel': channel})
 
-    def list(self, exclude_archived=None):
+    def list(self, exclude_archived=True, exclude_members=False):
         """
         Lists the private channels that the user has access to
 
         :param exclude_archived: Don't include archived private channels in the returned list
         :type exclude_archived: bool
+        :param exclude_members: Don't include members in the returned list
+        :type exclude_members: bool
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
         return self.get('groups.list',
-                        params={'exclude_archived': exclude_archived})
+                        params={'exclude_archived': str(exclude_archived).lower(),
+                            'exclude_members': str(exclude_members).lower()})
 
     def history(self, channel, latest=None, oldest=None, count=None,
-                inclusive=None):
+                inclusive=True):
         """
         Fetches history of messages and events from a private channel
 
@@ -517,7 +520,7 @@ class Groups(BaseAPI):
                             'latest': latest,
                             'oldest': oldest,
                             'count': count,
-                            'inclusive': inclusive
+                            'inclusive': int(inclusive)
                         })
 
     def invite(self, channel, user):
@@ -696,7 +699,7 @@ class Channels(BaseAPI):
         """
         return self.get('channels.info', params={'channel': channel})
 
-    def list(self, exclude_archived=None, exclude_members=None):
+    def list(self, exclude_archived=True, exclude_members=False):
         """
         Lists channels
 
@@ -708,8 +711,8 @@ class Channels(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.get('channels.list',
-                        params={'exclude_archived': exclude_archived,
-                                'exclude_members': exclude_members})
+                        params={'exclude_archived': str(exclude_archived).lower(),
+                                'exclude_members': str(exclude_members).lower()})
 
     def history(self, channel, latest=None, oldest=None, count=None,
                 inclusive=False, unreads=False):
@@ -940,7 +943,7 @@ class Conversation(BaseAPI):
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
         return self.post('conversations.create',
-                data={'name': name, 'is_private': int(is_private), 'user_ids': users})
+                data={'name': name, 'is_private': str(is_private).lower(), 'user_ids': users})
 
     def history(self, channel, cursor=None, inclusive=False, limit=100,
             latest=timestamp, oldest=0):
@@ -1001,8 +1004,10 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.info', data={'channel': channel,
-            'include_locale': int(include_locale),'include_num_members': int(include_num_members)})
+        return self.post('conversations.info', data={
+            'channel': channel,
+            'include_locale': str(include_locale).lower(), 
+            'include_num_members': str(include_num_members).lower()})
 
     def invite(self, channel, users=[]):
         """
@@ -1070,7 +1075,7 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.post('conversations.list', 
-                data={'cursor': cursor, 'exclude_archived': int(exclude_archived), 'limit': limit, 'types': types})
+                data={'cursor': cursor, 'exclude_archived': str(exclude_archived).lower(), 'limit': limit, 'types': types})
 
     def list_all(self, exclude_archived=False, types="public_channel"):
         """
@@ -1084,12 +1089,12 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         response = self.get('conversations.list',
-                            params={'exclude_archived': int(exclude_archived), 'types': types})
+                            params={'exclude_archived': str(exclude_archived).lower(), 'types': types})
         channels = response.body.get('channels', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('conversations.list',
-                                params={'exclude_archived': int(exclude_archived), 
+                                params={'exclude_archived': str(exclude_archived).lower(), 
                                         'types': types, 'cursor': next_cursor})
             channels.extend(response.body.get('channels', []))
             next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
@@ -1152,7 +1157,7 @@ class Conversation(BaseAPI):
         """
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
-        self.post('conversations.open', data={'channel': channel, 'return_im': int(return_im), 'users': users})
+        self.post('conversations.open', data={'channel': channel, 'return_im': str(return_im).lower(), 'users': users})
 
     def rename(self, channel, name):
         """
@@ -1259,7 +1264,7 @@ class Conversation(BaseAPI):
 
 class Chat(BaseAPI):
 
-    def post_message(self, channel, text=None, username=None, as_user=None,
+    def post_message(self, channel, text=None, username=None, as_user=False,
                      parse=None, link_names=None, attachments=None,
                      unfurl_links=None, unfurl_media=None, icon_url=None,
                      icon_emoji=None, thread_ts=None, reply_broadcast=None):
@@ -1305,7 +1310,7 @@ class Chat(BaseAPI):
                              'channel': channel,
                              'text': text,
                              'username': username,
-                             'as_user': as_user,
+                             'as_user': str(as_user).lower(),
                              'parse': parse,
                              'link_names': link_names,
                              'attachments': attachments,
@@ -1352,7 +1357,7 @@ class Chat(BaseAPI):
                          })
 
     def update(self, channel, ts, text, attachments=None, parse=None,
-               link_names=False, as_user=None):
+               link_names=None, as_user=False):
         """
         Updates a message in a channel
         
@@ -1369,7 +1374,7 @@ class Chat(BaseAPI):
         :param link_names: Find and link channel names
         :type link_names: str
         :param as_user: Update the message as the authed user
-        :type as_user: str
+        :type as_user: bool
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
@@ -1383,20 +1388,20 @@ class Chat(BaseAPI):
                              'text': text,
                              'attachments': attachments,
                              'parse': parse,
-                             'link_names': int(link_names),
-                             'as_user': as_user,
+                             'link_names': str(link_names).lower(),
+                             'as_user': str(as_user).lower,
                          })
 
     def delete(self, channel, ts, as_user=False):
         """
         Delete a message
         
-        :param channel:
-        :type channel:
-        :param ts:
-        :type ts:
-        :param as_user:
-        :type as_user:
+        :param channel: The channel ID
+        :type channel: str
+        :param ts: Timestamp of the message to be deleted
+        :type ts: str
+        :param as_user: Deletes the message as the authed user
+        :type as_user: bool
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
@@ -1404,11 +1409,11 @@ class Chat(BaseAPI):
                          data={
                              'channel': channel,
                              'ts': ts,
-                             'as_user': as_user
+                             'as_user': str(as_user).lower()
                          })
 
-    def post_ephemeral(self, channel, text, user, as_user=None,
-                       attachments=None, link_names=None, parse=None):
+    def post_ephemeral(self, channel, text, user, as_user=False,
+                       attachments=None, link_names=True, parse=None):
         """
         Sends an ephemeral message to a user in a channel
         
@@ -1419,7 +1424,7 @@ class Chat(BaseAPI):
         :param user: The user ID
         :type user: str
         :param as_user: Posts the message as the authed user
-        :type as_user: str
+        :type as_user: bool
         :param attachments: JSON array of structured attachments
         :type attachments: JSON
         :param link_names: Link channel names and users
@@ -1437,10 +1442,10 @@ class Chat(BaseAPI):
                              'channel': channel,
                              'text': text,
                              'user': user,
-                             'as_user': as_user,
+                             'as_user': str(as_user).lower(),
                              'attachments': attachments,
-                             'link_names': link_names,
-                             'parse': parse,
+                             'link_names': str(link_names).lower(),
+                             'parse': str(parse).lower(),
                          })
 
     def unfurl(self, channel, ts, unfurls, user_auth_message=None,
@@ -1457,7 +1462,7 @@ class Chat(BaseAPI):
         :param user_auth_message: Invitation to user to use Slack app 
         :type user_auth_message: str
         :param user_auth_required: Slack app required
-        :type user_auth_required: str
+        :type user_auth_required: bool
         :param user_auth_unfurl: URL for completion
         :type user_auth_unfurl: str
         :return: A response object to run the API request.
@@ -1469,7 +1474,7 @@ class Chat(BaseAPI):
                              'ts': ts,
                              'unfurls': unfurls,
                              'user_auth_message': user_auth_message,
-                             'user_auth_required': user_auth_required,
+                             'user_auth_required': int(user_auth_required),
                              'user_auth_url': user_auth_url,
                          })
 
@@ -1502,7 +1507,7 @@ class IM(BaseAPI):
         return self.get('im.list')
 
     def history(self, channel, latest=None, oldest=None, count=None,
-                inclusive=None, unreads=False):
+                inclusive=True, unreads=False):
         """
         Fetches history of messages and events from a DM channel
         
@@ -1527,7 +1532,7 @@ class IM(BaseAPI):
                             'latest': latest,
                             'oldest': oldest,
                             'count': count,
-                            'inclusive': inclusive,
+                            'inclusive': int(inclusive),
                             'unreads' : int(unreads)
                         })
 
@@ -1558,7 +1563,7 @@ class IM(BaseAPI):
         """
         return self.post('im.mark', data={'channel': channel, 'ts': ts})
 
-    def open(self, user, include_locale='true', return_im='true'):
+    def open(self, user, include_locale=True, return_im=True):
         """
         Opens a DM channel 
         
@@ -1567,12 +1572,12 @@ class IM(BaseAPI):
         :param include_locale: Receive locales for this DM
         :type include_locale: str
         :param return_im: Return the full IM channel definition
-        :type return_im: str
+        :type return_im: True
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
         return self.post('im.open', data={'user': user, 
-            'include_locale': include_locale, 'return_im': return_im})
+            'include_locale': str(include_locale).lower(), 'return_im': str(return_im).lower()})
 
     def close(self, channel):
         """
@@ -1680,7 +1685,7 @@ class MPIM(BaseAPI):
 
 
 class Search(BaseAPI):
-    def all(self, query, sort=None, sort_dir=None, highlight=None, count=None,
+    def all(self, query, sort=None, sort_dir=None, highlight=True, count=None,
             page=None):
         """
         Searches for messages and files matching a query
@@ -1705,12 +1710,12 @@ class Search(BaseAPI):
                             'query': query,
                             'sort': sort,
                             'sort_dir': sort_dir,
-                            'highlight': highlight,
+                            'highlight': str(highlight).lower(),
                             'count': count,
                             'page': page
                         })
 
-    def files(self, query, sort=None, sort_dir=None, highlight=None,
+    def files(self, query, sort=None, sort_dir=None, highlight=True,
               count=None, page=None):
         """
         Searches for files matching a query
@@ -1735,12 +1740,12 @@ class Search(BaseAPI):
                             'query': query,
                             'sort': sort,
                             'sort_dir': sort_dir,
-                            'highlight': highlight,
+                            'highlight': str(highlight).lower(),
                             'count': count,
                             'page': page
                         })
 
-    def messages(self, query, sort=None, sort_dir=None, highlight=None,
+    def messages(self, query, sort=None, sort_dir=None, highlight=True,
                  count=None, page=None):
         """
         Searches for messages matching a query
@@ -1765,7 +1770,7 @@ class Search(BaseAPI):
                             'query': query,
                             'sort': sort,
                             'sort_dir': sort_dir,
-                            'highlight': highlight,
+                            'highlight': str(highlight).lower(),
                             'count': count,
                             'page': page
                         })
@@ -2058,7 +2063,7 @@ class Presence(BaseAPI):
 
 
 class RTM(BaseAPI):
-    def start(self, simple_latest=False, no_unreads=False, mpim_aware=False):
+    def start(self, simple_latest=True, no_unreads=False, mpim_aware=False):
         """
         Start a Real Time Messaging session
         
@@ -2073,9 +2078,9 @@ class RTM(BaseAPI):
         """
         return self.get('rtm.start',
                         params={
-                            'simple_latest': int(simple_latest),
-                            'no_unreads': int(no_unreads),
-                            'mpim_aware': int(mpim_aware),
+                            'simple_latest': str(simple_latest).lower(),
+                            'no_unreads': str(no_unreads).lower(),
+                            'mpim_aware': str(mpim_aware).lower(),
                         })
 
     def connect(self):
@@ -2100,7 +2105,7 @@ class TeamProfile(BaseAPI):
         """
         return super(TeamProfile, self).get(
             'team.profile.get',
-            params={'visibility': visibility}
+            params={'visibility': str(visibility).lower()}
         )
 
 
@@ -2364,7 +2369,7 @@ class Pins(BaseAPI):
 
 
 class UserGroupsUsers(BaseAPI):
-    def list(self, usergroup, include_disabled=None):
+    def list(self, usergroup, include_disabled=False):
         """
         Lists all users in a usergroup
         
@@ -2376,14 +2381,14 @@ class UserGroupsUsers(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         if isinstance(include_disabled, bool):
-            include_disabled = int(include_disabled)
+            include_disabled = str(include_disabled).lower()
 
         return self.get('usergroups.users.list', params={
             'usergroup': usergroup,
             'include_disabled': include_disabled,
         })
 
-    def update(self, usergroup, users, include_count=None):
+    def update(self, usergroup, users, include_count=False):
         """
         Updates the list of users for a usergroup
         
@@ -2399,13 +2404,10 @@ class UserGroupsUsers(BaseAPI):
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
 
-        if isinstance(include_count, bool):
-            include_count = int(include_count)
-
         return self.post('usergroups.users.update', data={
             'usergroup': usergroup,
             'users': users,
-            'include_count': include_count,
+            'include_count': str(include_count).lower(),
         })
 
 
@@ -2418,7 +2420,7 @@ class UserGroups(BaseAPI):
     def users(self):
         return self._users
 
-    def list(self, include_disabled=None, include_count=None, include_users=None):
+    def list(self, include_disabled=False, include_count=False, include_users=False):
         """
         Lists all of the usergroups 
         
@@ -2431,23 +2433,14 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        if isinstance(include_disabled, bool):
-            include_disabled = int(include_disabled)
-
-        if isinstance(include_count, bool):
-            include_count = int(include_count)
-
-        if isinstance(include_users, bool):
-            include_users = int(include_users)
-
         return self.get('usergroups.list', params={
-            'include_disabled': include_disabled,
-            'include_count': include_count,
-            'include_users': include_users,
+            'include_disabled': str(include_disabled).lower(),
+            'include_count': str(include_count).lower(),
+            'include_users': str(include_users).lower(),
         })
 
     def create(self, name, handle=None, description=None, channels=None,
-               include_count=None):
+               include_count=False):
         """
         Creates a new usergroup 
         
@@ -2467,19 +2460,16 @@ class UserGroups(BaseAPI):
         if isinstance(channels, (tuple, list)):
             channels = ','.join(channels)
 
-        if isinstance(include_count, bool):
-            include_count = int(include_count)
-
         return self.post('usergroups.create', data={
             'name': name,
             'handle': handle,
             'description': description,
             'channels': channels,
-            'include_count': include_count,
+            'include_count': str(include_count).lower(),
         })
 
     def update(self, usergroup, name=None, handle=None, description=None,
-               channels=None, include_count=None):
+               channels=None, include_count=True):
         """
         Update an existing usergroup
         
@@ -2501,19 +2491,16 @@ class UserGroups(BaseAPI):
         if isinstance(channels, (tuple, list)):
             channels = ','.join(channels)
 
-        if isinstance(include_count, bool):
-            include_count = int(include_count)
-
         return self.post('usergroups.update', data={
             'usergroup': usergroup,
             'name': name,
             'handle': handle,
             'description': description,
             'channels': channels,
-            'include_count': include_count,
+            'include_count': str(include_count).lower(),
         })
 
-    def disable(self, usergroup, include_count=None):
+    def disable(self, usergroup, include_count=True):
         """
         Disable a UserGroup
         
@@ -2524,15 +2511,12 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        if isinstance(include_count, bool):
-            include_count = int(include_count)
-
         return self.post('usergroups.disable', data={
             'usergroup': usergroup,
-            'include_count': include_count,
+            'include_count': str(include_count).lower(),
         })
 
-    def enable(self, usergroup, include_count=None):
+    def enable(self, usergroup, include_count=True):
         """
         Enable a UserGroup
         
@@ -2543,12 +2527,9 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        if isinstance(include_count, bool):
-            include_count = int(include_count)
-
         return self.post('usergroups.enable', data={
             'usergroup': usergroup,
-            'include_count': include_count,
+            'include_count': str(include_count).lower(),
         })
 
 
