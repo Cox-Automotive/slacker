@@ -976,7 +976,7 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         response = self.get('conversations.history',
-                data={'channel': channel, 'inclusive': True,
+                data={'channel': channel, 'inclusive': int(True),
                     'latest': self.timestamp, 'oldest': 0})
         conversations = response.body.get('messages', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
