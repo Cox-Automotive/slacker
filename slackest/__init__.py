@@ -975,22 +975,19 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        print('making first call')
-        response = self.get('conversations.history', data={'channel': "GC3ENUP0U", 'limit': 10})
-        print('made first call')
-        # conversations = response.body.get('messages', [])
-        # next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
-        # while next_cursor:
-        #     response = self.get('conversations.history', params={'channel':channel,'cursor': next_cursor})
-        #     conversations.extend(response.body.get('messages', []))
-        #     next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
-        #     print('made next call')
-        #     time.sleep(4)
- 
-        # if conversations:
-            # response.body['messages'] = conversations
-        #return response
-        return "hello"
+        response = self.get('conversations.history',
+                            params={'channel': channel})
+        conversations = response.body.get('messages', [])
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('conversations.history',
+                                params={'channel':channel,'cursor': next_cursor})
+            conversations.extend(response.body.get('messages', []))
+            next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+
+        if conversations:
+            response.body['messages'] = conversations
+        return response
 
     def info(self, channel, include_locale=False, include_num_members=False):
         """
