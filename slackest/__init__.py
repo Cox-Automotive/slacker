@@ -14,8 +14,9 @@
 
 import datetime
 import json
-import requests
 import time
+
+import requests
 
 from slackest.utils import get_item_id_by_name
 
@@ -27,21 +28,24 @@ DEFAULT_RETRIES = 0
 DEFAULT_WAIT = 20
 DEFAULT_API_SLEEP = 5
 
-__version__ = '0.13.2'
-__all__ = ['Error', 'Response', 'BaseAPI', 'API', 'Auth', 'Users', 'Groups',
-           'Conversation', 'Channels', 'Chat', 'IM', 'IncomingWebhook',
-           'Search', 'Files', 'Stars', 'Emoji', 'Presence', 'RTM', 'Team',
-           'Reactions', 'Pins', 'UserGroups', 'UserGroupsUsers', 'MPIM',
-           'OAuth', 'DND', 'Bots', 'FilesComments', 'Reminders', 'TeamProfile',
-           'UsersProfile', 'IDPGroups', 'Apps', 'AppsPermissions', 'Slackest',
-           'Dialog']
+__version__ = '0.13.3'
+__all__ = ['SlackestError', 'Response', 'BaseAPI', 'API', 'Auth', 'Users',
+           'Groups', 'Conversation', 'Channels', 'Chat', 'IM',
+           'IncomingWebhook', 'Search', 'Files', 'Stars', 'Emoji', 'Presence',
+           'RTM', 'Team', 'Reactions', 'Pins', 'UserGroups', 'UserGroupsUsers',
+           'MPIM', 'OAuth', 'DND', 'Bots', 'FilesComments', 'Reminders',
+           'TeamProfile', 'UsersProfile', 'IDPGroups', 'Apps',
+           'AppsPermissions', 'Slackest', 'Dialog']
 
 
 class SlackestError(Exception):
+    """Dummy exception placeholder"""
     pass
 
 
 class Response(object):
+    """Requests response object"""
+
     def __init__(self, body):
         self.raw = body
         self.body = json.loads(body)
@@ -53,6 +57,8 @@ class Response(object):
 
 
 class BaseAPI(object):
+    """BaseAPI interface for making the `requests` calls to Slack."""
+
     def __init__(self, token=None, timeout=DEFAULT_TIMEOUT, proxies=None,
                  session=None, rate_limit_retries=DEFAULT_RETRIES):
         self.token = token
@@ -96,10 +102,8 @@ class BaseAPI(object):
             elif response.status_code == requests.codes.too_many: # HTTP 429
                 time.sleep(int(response.headers.get('retry-after', DEFAULT_WAIT)))
                 continue
-
             else:
                 response.raise_for_status()
-
         else:
             # with no retries left, make one final attempt to fetch the resource,
             # but do not handle too_many status differently
@@ -169,12 +173,11 @@ class BaseAPI(object):
         except requests.HTTPError as e:
             # Put a retry here with a short circuit
             if self.retry_counter < self.retry_max:
-                self.retry_counter =+ 1
+                self.retry_counter = self.retry_counter + 1
                 time.sleep(self.retry_wait_secs)
                 self.get(api, **kwargs)
             else:
                 raise
-
 
     def post(self, api, **kwargs):
         """
@@ -194,6 +197,8 @@ class BaseAPI(object):
 
 
 class API(BaseAPI):
+    """Follows the Slack Test API. See https://api.slack.com/methods"""
+
     def test(self, error=None, **kwargs):
         """
         Allows access to the Slack API test endpoint
@@ -212,6 +217,8 @@ class API(BaseAPI):
 
 
 class Auth(BaseAPI):
+    """Follows the Slack Auth API. See https://api.slack.com/methods"""
+
     def test(self):
         """
         Allows access to the Slack API test endpoint
@@ -234,6 +241,8 @@ class Auth(BaseAPI):
 
 
 class Dialog(BaseAPI):
+    """Follows the Slack Dialog API. See https://api.slack.com/methods"""
+
     def open(self, dialog, trigger_id):
         """
         Opens a dialog with a user
@@ -253,6 +262,8 @@ class Dialog(BaseAPI):
 
 
 class UsersProfile(BaseAPI):
+    """Follows the Slack UsersProfile API. See https://api.slack.com/methods"""
+
     def get(self, user=None, include_labels=False):
         """
         Gets a Slack user's profile
@@ -294,6 +305,8 @@ class UsersProfile(BaseAPI):
 
 
 class UsersAdmin(BaseAPI):
+    """Follows the Slack UsersAdmin API. See https://api.slack.com/methods"""
+
     def invite(self, email, channels=None, first_name=None,
                last_name=None, resend=True):
         """
@@ -323,6 +336,8 @@ class UsersAdmin(BaseAPI):
 
 
 class Users(BaseAPI):
+    """Follows the Slack Users API. See https://api.slack.com/methods"""
+
     def __init__(self, *args, **kwargs):
         super(Users, self).__init__(*args, **kwargs)
         self._profile = UsersProfile(*args, **kwargs)
@@ -330,6 +345,12 @@ class Users(BaseAPI):
 
     @property
     def profile(self):
+        """
+        Returns the profile object attribute
+
+        :return: A usersprofile object.
+        :rtype: :class:`UsersProfile <UsersProfile>` object
+        """
         return self._profile
 
     @property
@@ -347,7 +368,8 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('users.info', params={'user': user, 'include_locale': str(include_locale).lower()})
+        return self.get('users.info',
+                        params={'user': user, 'include_locale': str(include_locale).lower()})
 
     def list(self, cursor=None, include_locale=True, limit=500):
         """
@@ -362,9 +384,9 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('users.list', 
-                params={'include_locale': str(include_locale).lower(), 
-                    'limit': limit, 'cursor': cursor})
+        return self.get('users.list',
+                        params={'include_locale': str(include_locale).lower(),
+                                'limit': limit, 'cursor': cursor})
 
     def list_all(self, include_locale=True):
         """
@@ -380,7 +402,8 @@ class Users(BaseAPI):
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('users.list',
-                    params={'include_locale': str(include_locale).lower(), 'cursor': next_cursor})
+                                params={'include_locale': str(include_locale).lower(),
+                                        'cursor': next_cursor})
             if response is not None:
                 members.extend(response.body.get('members', []))
                 next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
@@ -442,11 +465,13 @@ class Users(BaseAPI):
         :return: Returns the user ID
         :rtype: str
         """
-        members = self.list_all_users().body['members']
+        members = self.list_all().body['members']
         return get_item_id_by_name(members, user_name)
 
 
 class Groups(BaseAPI):
+    """Follows the Slack Groups API. See https://api.slack.com/methods"""
+
     def create(self, name):
         """
         Creates a group with the name
@@ -498,7 +523,7 @@ class Groups(BaseAPI):
         """
         return self.get('groups.list',
                         params={'exclude_archived': str(exclude_archived).lower(),
-                            'exclude_members': str(exclude_members).lower()})
+                                'exclude_members': str(exclude_members).lower()})
 
     def history(self, channel, latest=None, oldest=None, count=None,
                 inclusive=True):
@@ -566,18 +591,18 @@ class Groups(BaseAPI):
         """
         return self.post('groups.leave', data={'channel': channel})
 
-    def mark(self, channel, ts):
+    def mark(self, channel, time_stamp):
         """
         Moves the read cursor in a private channel
 
         :param channel: The private channel ID
         :type channel: str
-        :param ts: The timestamp of the most recently seen message
-        :type ts: str
+        :param time_stamp: The timestamp of the most recently seen message
+        :type time_stamp: str
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.mark', data={'channel': channel, 'ts': ts})
+        return self.post('groups.mark', data={'channel': channel, 'ts': time_stamp})
 
     def rename(self, channel, name):
         """
@@ -681,6 +706,8 @@ class Groups(BaseAPI):
 
 
 class Channels(BaseAPI):
+    """Follows the Slack Channels API. See https://api.slack.com/methods"""
+
     def create(self, name):
         """
         Creates a public channel
@@ -748,19 +775,19 @@ class Channels(BaseAPI):
                             'unreads': int(unreads)
                         })
 
-    def mark(self, channel, ts):
+    def mark(self, channel, time_stamp):
         """
         Moves the read cursor in a public channel
 
         :param channel: The channel ID
         :type channel: str
-        :param ts: The timestamp of the most recently seen message
-        :type ts: str
+        :param time_stamp: The timestamp of the most recently seen message
+        :type time_stamp: str
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
         return self.post('channels.mark',
-                         data={'channel': channel, 'ts': ts})
+                         data={'channel': channel, 'ts': time_stamp})
 
     def join(self, name):
         """
@@ -904,10 +931,12 @@ class Channels(BaseAPI):
 
 
 class Conversation(BaseAPI):
-    # https://api.slack.com/docs/conversations-api#methods
+    """Follows the Slack Conversation API.
+    See https://api.slack.com/docs/conversations-api#methods"""
 
     # A Python 2 and Python 3 compatible timestamp
-    timestamp = float((time.mktime(datetime.datetime.now().timetuple())+datetime.datetime.now().microsecond/1000000.0))
+    now = datetime.datetime.now().timetuple()
+    timestamp = float((time.mktime(now)+datetime.datetime.now().microsecond/1000000.0))
 
     def archive(self, channel):
         """
@@ -946,11 +975,13 @@ class Conversation(BaseAPI):
         """
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
+
         return self.post('conversations.create',
-                data={'name': name, 'is_private': str(is_private).lower(), 'user_ids': users})
+                         data={'name': name, 'is_private': str(is_private).lower(),
+                               'user_ids': users})
 
     def history(self, channel, cursor=None, inclusive=False, limit=100,
-            latest=timestamp, oldest=0):
+                latest=timestamp, oldest=0):
         """
         Fetches history of messages and events from a channel
 
@@ -970,8 +1001,9 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.get('conversations.history',
-                data={'channel': channel, 'cursor': cursor, 'inclusive': int(inclusive),
-                    'limit': limit, 'latest': latest, 'oldest': oldest})
+                        data={'channel': channel, 'cursor': cursor,
+                              'inclusive': int(inclusive), 'limit': limit,
+                              'latest': latest, 'oldest': oldest})
 
     def history_all(self, channel):
         """
@@ -987,7 +1019,7 @@ class Conversation(BaseAPI):
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('conversations.history',
-                                params={'channel':channel,'cursor': next_cursor})
+                                params={'channel':channel, 'cursor': next_cursor})
             if response is not None:
                 conversations.extend(response.body.get('messages', []))
                 next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
@@ -1014,7 +1046,7 @@ class Conversation(BaseAPI):
         """
         return self.post('conversations.info', data={
             'channel': channel,
-            'include_locale': str(include_locale).lower(), 
+            'include_locale': str(include_locale).lower(),
             'include_num_members': str(include_num_members).lower()})
 
     def invite(self, channel, users=[]):
@@ -1030,7 +1062,7 @@ class Conversation(BaseAPI):
         """
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
-        return self.post('conversations.invite', data={'channel': channel,'users': users})
+        return self.post('conversations.invite', data={'channel': channel, 'users': users})
 
     def join(self, channel):
         """
@@ -1082,8 +1114,9 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.list', 
-                data={'cursor': cursor, 'exclude_archived': str(exclude_archived).lower(), 'limit': limit, 'types': types})
+        return self.post('conversations.list',
+                         data={'cursor': cursor, 'exclude_archived': str(exclude_archived).lower(),
+                               'limit': limit, 'types': types})
 
     def list_all(self, exclude_archived=False, types="public_channel"):
         """
@@ -1097,12 +1130,13 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         response = self.get('conversations.list',
-                            params={'exclude_archived': str(exclude_archived).lower(), 'types': types})
+                            params={'exclude_archived': str(exclude_archived).lower(),
+                                    'types': types})
         channels = response.body.get('channels', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('conversations.list',
-                                params={'exclude_archived': str(exclude_archived).lower(), 
+                                params={'exclude_archived': str(exclude_archived).lower(),
                                         'types': types, 'cursor': next_cursor})
             if response is not None:
                 channels.extend(response.body.get('channels', []))
@@ -1128,7 +1162,8 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.members', data={'channel': channel, 'cursor': cursor, 'limit': limit})
+        return self.post('conversations.members',
+                         data={'channel': channel, 'cursor': cursor, 'limit': limit})
 
     def members_all(self, channel):
         """
@@ -1144,7 +1179,7 @@ class Conversation(BaseAPI):
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('conversations.members',
-                    params={'channel': channel, 'cursor': next_cursor})
+                                params={'channel': channel, 'cursor': next_cursor})
             if response is not None:
                 members.extend(response.body.get('members', []))
                 next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
@@ -1171,7 +1206,9 @@ class Conversation(BaseAPI):
         """
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
-        self.post('conversations.open', data={'channel': channel, 'return_im': str(return_im).lower(), 'users': users})
+
+        self.post('conversations.open',
+                  data={'channel': channel, 'return_im': str(return_im).lower(), 'users': users})
 
     def rename(self, channel, name):
         """
@@ -1186,15 +1223,15 @@ class Conversation(BaseAPI):
         """
         self.post('conversations.rename', data={'channel': channel, 'name': name})
 
-    def replies(self, channel, ts, cursor=None, inclusive=False, limit=100,
-            latest=timestamp, oldest=0):
+    def replies(self, channel, time_stamp, cursor=None, inclusive=False, limit=100,
+                latest=timestamp, oldest=0):
         """
         Fetches replies in a thread of messages
 
         :param channel: The channel ID
         :type channel: str
-        :param ts: Unique identifier of a thread's parent message
-        :type ts: str
+        :param time_stamp: Unique identifier of a thread's parent message
+        :type time_stamp: str
         :param cursor: the cursor id of the next set of replies
         :type cursor: str
         :param inclusive: Include messages with latest or oldest timestamp in results
@@ -1209,27 +1246,29 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.post('conversations.replies',
-                data={'channel': channel, 'ts': ts, 'cursor': cursor, 'inclusive': int(inclusive),
-                    'limit': limit, 'latest': latest, 'oldest': oldest})
+                         data={'channel': channel, 'ts': time_stamp, 'cursor': cursor,
+                               'inclusive': int(inclusive), 'limit': limit,
+                               'latest': latest, 'oldest': oldest})
 
-    def replies_all(self, channel, ts):
+    def replies_all(self, channel, time_stamp):
         """
         Fetches all replies in a thread of messages
 
         :param channel: The channel ID
         :type channel: str
-        :param ts: Unique identifier of a thread's parent message
-        :type ts: str
+        :param time_stamp: Unique identifier of a thread's parent message
+        :type time_stamp: str
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
         response = self.get('conversations.replies',
-                            params={'channel': channel, 'ts': ts})
+                            params={'channel': channel, 'ts': time_stamp})
         replies = response.body.get('message', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('conversations.replies',
-                                params={'channel': channel, 'ts': ts, 'cursor': next_cursor})
+                                params={'channel': channel, 'ts': time_stamp,
+                                        'cursor': next_cursor})
             if response is not None:
                 replies.extend(response.body.get('message', []))
                 next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
@@ -1280,6 +1319,7 @@ class Conversation(BaseAPI):
 
 
 class Chat(BaseAPI):
+    """Follows the Slack Chat API. See https://api.slack.com/methods"""
 
     def post_message(self, channel, text=None, username=None, as_user=False,
                      parse=None, link_names=None, attachments=None,
@@ -1287,7 +1327,7 @@ class Chat(BaseAPI):
                      icon_emoji=None, thread_ts=None, reply_broadcast=None):
         """
         Posts a message to a channel
-        
+
         :param channel: The channel ID
         :type channel: str
         :param text: Text of the message to post
@@ -1341,9 +1381,9 @@ class Chat(BaseAPI):
 
     def me_message(self, channel, text):
         """
-        Share a me message to a channel  
-        
-        :param channel: The channel to post to 
+        Share a me message to a channel
+
+        :param channel: The channel to post to
         :type channel: str
         :param text: The text of the message
         :type text: str
@@ -1356,7 +1396,7 @@ class Chat(BaseAPI):
     def command(self, channel, command, text):
         """
         DEPRECATED? Run a command in a chat
-        
+
         :param channel: The channel ID
         :type channel: str
         :param command: The command to run
@@ -1373,15 +1413,15 @@ class Chat(BaseAPI):
                              'text': text
                          })
 
-    def update(self, channel, ts, text, attachments=None, parse=None,
+    def update(self, channel, time_stamp, text, attachments=None, parse=None,
                link_names=None, as_user=False):
         """
         Updates a message in a channel
-        
+
         :param channel: The channel ID
         :type channel: str
-        :param ts: Timestamp of the message to be updated
-        :type ts: str
+        :param time_stamp: Timestamp of the message to be updated
+        :type time_stamp: str
         :param text: New text for the message
         :type text: str
         :param attachments: JSON array of structured attachments
@@ -1399,41 +1439,33 @@ class Chat(BaseAPI):
         if attachments is not None and isinstance(attachments, list):
             attachments = json.dumps(attachments)
         return self.post('chat.update',
-                         data={
-                             'channel': channel,
-                             'ts': ts,
-                             'text': text,
-                             'attachments': attachments,
-                             'parse': parse,
-                             'link_names': str(link_names).lower(),
-                             'as_user': str(as_user).lower,
-                         })
+                         data={'channel': channel, 'ts': time_stamp, 'text': text,
+                               'attachments': attachments, 'parse': parse,
+                               'link_names': str(link_names).lower(),
+                               'as_user': str(as_user).lower})
 
-    def delete(self, channel, ts, as_user=False):
+    def delete(self, channel, time_stamp, as_user=False):
         """
         Delete a message
-        
+
         :param channel: The channel ID
         :type channel: str
-        :param ts: Timestamp of the message to be deleted
-        :type ts: str
+        :param time_stamp: Timestamp of the message to be deleted
+        :type time_stamp: str
         :param as_user: Deletes the message as the authed user
         :type as_user: bool
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
         return self.post('chat.delete',
-                         data={
-                             'channel': channel,
-                             'ts': ts,
-                             'as_user': str(as_user).lower()
-                         })
+                         data={'channel': channel, 'ts': time_stamp,
+                               'as_user': str(as_user).lower()})
 
     def post_ephemeral(self, channel, text, user, as_user=False,
                        attachments=None, link_names=True, parse=None):
         """
         Sends an ephemeral message to a user in a channel
-        
+
         :param channel: The channel ID
         :type channel: str
         :param text: Text of the message to send
@@ -1465,18 +1497,18 @@ class Chat(BaseAPI):
                              'parse': str(parse).lower(),
                          })
 
-    def unfurl(self, channel, ts, unfurls, user_auth_message=None,
+    def unfurl(self, channel, time_stamp, unfurls, user_auth_message=None,
                user_auth_required=False, user_auth_url=None):
         """
         Provides custom unfurl behavior for user posted URLS
-        
+
         :param channel: The channel ID
         :type channel: str
-        :param ts: Timestamp of the message to add unfurl behavior
-        :type ts: str
+        :param time_stamp: Timestamp of the message to add unfurl behavior
+        :type time_stamp: str
         :param unfurls: JSON map with keys set to URLS in the message
         :type unfurls: JSON
-        :param user_auth_message: Invitation to user to use Slack app 
+        :param user_auth_message: Invitation to user to use Slack app
         :type user_auth_message: str
         :param user_auth_required: Slack app required
         :type user_auth_required: bool
@@ -1486,19 +1518,15 @@ class Chat(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.post('chat.unfurl',
-                         data={
-                             'channel': channel,
-                             'ts': ts,
-                             'unfurls': unfurls,
-                             'user_auth_message': user_auth_message,
-                             'user_auth_required': int(user_auth_required),
-                             'user_auth_url': user_auth_url,
-                         })
+                         data={'channel': channel, 'ts': time_stamp,
+                               'unfurls': unfurls, 'user_auth_message': user_auth_message,
+                               'user_auth_required': int(user_auth_required),
+                               'user_auth_url': user_auth_url})
 
     def get_permalink(self, channel, message_ts):
         """
         Retrieve a permalink URL for a specific extant message
-        
+
         :param channel:
         :type channel:
         :param message_ts:
@@ -1507,17 +1535,16 @@ class Chat(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.get('chat.getPermalink',
-                        params={
-                            'channel': channel,
-                            'message_ts': message_ts
-                        })
+                        params={'channel': channel, 'message_ts': message_ts})
 
 
 class IM(BaseAPI):
+    """Follows the Slack IM API. See https://api.slack.com/methods"""
+
     def list(self):
         """
         Lists direct messages for the calling user
-        
+
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
@@ -1527,7 +1554,7 @@ class IM(BaseAPI):
                 inclusive=True, unreads=False):
         """
         Fetches history of messages and events from a DM channel
-        
+
         :param channel: The channel ID
         :type channel: str
         :param latest: End of time range of messages to include in results
@@ -1556,7 +1583,7 @@ class IM(BaseAPI):
     def replies(self, channel, thread_ts):
         """
         Retrieves a thread of messages posted to a DM
-        
+
         :param channel: The channel ID
         :type channel: str
         :param thread_ts: Unique ID of thread's parent message
@@ -1567,23 +1594,23 @@ class IM(BaseAPI):
         return self.get('im.replies',
                         params={'channel': channel, 'thread_ts': thread_ts})
 
-    def mark(self, channel, ts):
+    def mark(self, channel, time_stamp):
         """
-        Sets the read cursor in a DM 
-         
+        Sets the read cursor in a DM
+
         :param channel: The channel ID
         :type channel: str
-        :param ts: Timestamp of the most recently seen message
-        :type ts: str
+        :param time_stamp: Timestamp of the most recently seen message
+        :type time_stamp: str
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('im.mark', data={'channel': channel, 'ts': ts})
+        return self.post('im.mark', data={'channel': channel, 'ts': time_stamp})
 
     def open(self, user, include_locale=True, return_im=True):
         """
-        Opens a DM channel 
-        
+        Opens a DM channel
+
         :param user:  User to open a DM channel with
         :type user: str
         :param include_locale: Receive locales for this DM
@@ -1593,13 +1620,14 @@ class IM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('im.open', data={'user': user, 
-            'include_locale': str(include_locale).lower(), 'return_im': str(return_im).lower()})
+        return self.post('im.open',
+                         data={'user': user, 'include_locale': str(include_locale).lower(),
+                               'return_im': str(return_im).lower()})
 
     def close(self, channel):
         """
-        Close a DM channel 
-        
+        Close a DM channel
+
         :param channel:
         :type channel:
         :return: A response object to run the API request.
@@ -1609,10 +1637,12 @@ class IM(BaseAPI):
 
 
 class MPIM(BaseAPI):
+    """Follows the Slack MPIM API. See https://api.slack.com/methods"""
+
     def open(self, users=[]):
         """
         Opens a MPIM with a list of users
-        
+
         :param users: A list of user IDs
         :type users: list[str]
         :return: A response object to run the API request.
@@ -1626,7 +1656,7 @@ class MPIM(BaseAPI):
     def close(self, channel):
         """
         Closes a MPIM
-        
+
         :param channel: the channel ID
         :type channel: str
         :return: A response object to run the API request.
@@ -1634,23 +1664,23 @@ class MPIM(BaseAPI):
         """
         return self.post('mpim.close', data={'channel': channel})
 
-    def mark(self, channel, ts):
+    def mark(self, channel, time_stamp):
         """
         Sets the read cursor in a MPIM
-        
+
         :param channel: The channel ID
         :type channel: str
-        :param ts: The timestamp of the message
-        :type ts: str
+        :param time_stamp: The timestamp of the message
+        :type time_stamp: str
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('mpim.mark', data={'channel': channel, 'ts': ts})
+        return self.post('mpim.mark', data={'channel': channel, 'ts': time_stamp})
 
     def list(self):
         """
         Lists MPIM for the calling user
-        
+
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
@@ -1660,7 +1690,7 @@ class MPIM(BaseAPI):
                 count=None, unreads=False):
         """
         Fetches a history of messages and events
-        
+
         :param channel: The channel ID
         :type channel: str
         :param latest: End of time range to include in results
@@ -1689,7 +1719,7 @@ class MPIM(BaseAPI):
     def replies(self, channel, thread_ts):
         """
         Retrieves a thread of messages posted to MPIM
-        
+
         :param channel: The channel ID
         :type channel: str
         :param thread_ts: Thread's parent message
@@ -1702,11 +1732,13 @@ class MPIM(BaseAPI):
 
 
 class Search(BaseAPI):
+    """Follows the Slack Search API. See https://api.slack.com/methods"""
+
     def all(self, query, sort=None, sort_dir=None, highlight=True, count=None,
             page=None):
         """
         Searches for messages and files matching a query
-        
+
         :param query: Search query
         :type query: str
         :param sort: Sort by score or timestamp
@@ -1736,7 +1768,7 @@ class Search(BaseAPI):
               count=None, page=None):
         """
         Searches for files matching a query
-        
+
         :param query: Search query
         :type query: str
         :param sort: Sort by score or timestamp
@@ -1766,7 +1798,7 @@ class Search(BaseAPI):
                  count=None, page=None):
         """
         Searches for messages matching a query
-        
+
         :param query: Search query
         :type query: str
         :param sort: Sort by score or timestamp
@@ -1794,10 +1826,12 @@ class Search(BaseAPI):
 
 
 class FilesComments(BaseAPI):
+    """Follows the Slack FilesComments API. See https://api.slack.com/methods"""
+
     def add(self, file_, comment):
         """
         DEPRECATED - Adds a comment to a file
-        
+
         :param file_: The file ID
         :type file_: str
         :param comment: Text of the comment
@@ -1811,7 +1845,7 @@ class FilesComments(BaseAPI):
     def delete(self, file_, id):
         """
         Deletes a comment on a file
-        
+
         :param file_: File to delete a comment from
         :type file_: str
         :param id: The comment ID
@@ -1825,7 +1859,7 @@ class FilesComments(BaseAPI):
     def edit(self, file_, id, comment):
         """
         DEPRECATED - Edits a comment to a file
-        
+
         :param file_: File to delete a comment from
         :type file_: str
         :param id: The comment ID
@@ -1840,6 +1874,8 @@ class FilesComments(BaseAPI):
 
 
 class Files(BaseAPI):
+    """Follows the Slack Files API. See https://api.slack.com/methods"""
+
     def __init__(self, *args, **kwargs):
         super(Files, self).__init__(*args, **kwargs)
         self._comments = FilesComments(*args, **kwargs)
@@ -1852,7 +1888,7 @@ class Files(BaseAPI):
              count=None, page=None, channel=None):
         """
         List of files within a team
-        
+
         :param user: Filter files to this user ID
         :type user: str
         :param ts_from: Timestamp from = after
@@ -1884,7 +1920,7 @@ class Files(BaseAPI):
     def info(self, file_, count=None, page=None, cursor=None, limit=100):
         """
         Gents information about a file
-        
+
         :param file_: The file ID
         :type file_: str
         :param count: Number of items to return
@@ -1899,14 +1935,14 @@ class Files(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.get('files.info',
-                        params={'file': file_, 'count': count, 'page': page, 
-                            'cursor': cursor, 'limit': limit})
+                        params={'file': file_, 'count': count, 'page': page,
+                                'cursor': cursor, 'limit': limit})
 
     def upload(self, file_=None, content=None, filetype=None, filename=None,
                title=None, initial_comment=None, channels=None, thread_ts=None):
         """
         Uploads or creates a file
-        
+
         :param file_: The file ID
         :type file_: str
         :param content: File contents via a POST variable
@@ -1941,10 +1977,8 @@ class Files(BaseAPI):
 
         if file_:
             if isinstance(file_, str):
-                with open(file_, 'rb') as f:
-                    return self.post(
-                        'files.upload', data=data, files={'file': f}
-                    )
+                with open(file_, 'rb') as file_name:
+                    return self.post('files.upload', data=data, files={'file': file_name})
 
             return self.post(
                 'files.upload', data=data, files={'file': file_}
@@ -1955,7 +1989,7 @@ class Files(BaseAPI):
     def delete(self, file_):
         """
         Deletes a file
-        
+
         :param file_: The file ID
         :type file_: str
         :return: A response object to run the API request.
@@ -1966,7 +2000,7 @@ class Files(BaseAPI):
     def revoke_public_url(self, file_):
         """
         Revokes public sharing
-        
+
         :param file_: The file ID
         :type file_: str
         :return: A response object to run the API request.
@@ -1977,7 +2011,7 @@ class Files(BaseAPI):
     def shared_public_url(self, file_):
         """
         Enables public sharing
-        
+
         :param file_: The file ID
         :type file_: str
         :return: A response object to run the API request.
@@ -1987,10 +2021,12 @@ class Files(BaseAPI):
 
 
 class Stars(BaseAPI):
+    """Follows the Slack Stars API. See https://api.slack.com/methods"""
+
     def add(self, file_=None, file_comment=None, channel=None, timestamp=None):
         """
         Adds a star to an item
-        
+
         :param file_: The file ID
         :type file_: str
         :param file_comment: The comment on the file
@@ -2015,7 +2051,7 @@ class Stars(BaseAPI):
     def list(self, user=None, count=None, page=None):
         """
         Lists stars for a user
-        
+
         :param :
         :type :
         :return: A response object to run the API request.
@@ -2027,7 +2063,7 @@ class Stars(BaseAPI):
     def remove(self, file_=None, file_comment=None, channel=None, timestamp=None):
         """
         Removes a star from an item
-        
+
         :param file_: The file ID
         :type file_: str
         :param file_comment: The comment on the file
@@ -2051,10 +2087,12 @@ class Stars(BaseAPI):
 
 
 class Emoji(BaseAPI):
+    """Follows the Slack Emoji API. See https://api.slack.com/methods"""
+
     def list(self):
         """
         List all emojis
-        
+
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
@@ -2062,6 +2100,8 @@ class Emoji(BaseAPI):
 
 
 class Presence(BaseAPI):
+    """Follows the Slack Presence API. See https://api.slack.com/methods"""
+
     AWAY = 'away'
     ACTIVE = 'active'
     TYPES = (AWAY, ACTIVE)
@@ -2069,7 +2109,7 @@ class Presence(BaseAPI):
     def set(self, presence):
         """
         DEPRECATED - Sets the precense of a user
-        
+
         :param presence: The status
         :type presence: str
         :return: A response object to run the API request.
@@ -2080,10 +2120,12 @@ class Presence(BaseAPI):
 
 
 class RTM(BaseAPI):
+    """Follows the Slack RTM API. See https://api.slack.com/methods"""
+
     def start(self, simple_latest=True, no_unreads=False, mpim_aware=False):
         """
         Start a Real Time Messaging session
-        
+
         :param simple_latest: Return timestamp only for latest message object
         :type simple_latest: bool
         :param no_unreads: Skip unread counts
@@ -2103,7 +2145,7 @@ class RTM(BaseAPI):
     def connect(self):
         """
         Start a Real Time Messaging session
-        
+
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
@@ -2111,10 +2153,12 @@ class RTM(BaseAPI):
 
 
 class TeamProfile(BaseAPI):
+    """Follows the Slack TeamProfile API. See https://api.slack.com/methods"""
+
     def get(self, visibility=None):
         """
         Retrieves a team's profile
-        
+
         :param visibility: Filter by visibility
         :type visibility: str
         :return: A response object to run the API request.
@@ -2127,6 +2171,8 @@ class TeamProfile(BaseAPI):
 
 
 class Team(BaseAPI):
+    """Follows the Slack Team API. See https://api.slack.com/methods"""
+
     def __init__(self, *args, **kwargs):
         super(Team, self).__init__(*args, **kwargs)
         self._profile = TeamProfile(*args, **kwargs)
@@ -2138,7 +2184,7 @@ class Team(BaseAPI):
     def info(self):
         """
         Gets information about the current team
-        
+
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
@@ -2147,7 +2193,7 @@ class Team(BaseAPI):
     def access_logs(self, count=None, page=None, before=None):
         """
         Gets the access log for the current team
-        
+
         :param count: Number of items to return in the page
         :type count: int
         :param page: The page number of results
@@ -2168,7 +2214,7 @@ class Team(BaseAPI):
                          change_type=None, count=None, page=None):
         """
         Gets the integration logs for the current team
-        
+
         :param service_id: Filter logs to this service
         :type service_id: str
         :param app_id: Filter logs to this slack app
@@ -2196,8 +2242,8 @@ class Team(BaseAPI):
 
     def billable_info(self, user=None):
         """
-        Gets billable users information 
-        
+        Gets billable users information
+
         :param user:
         :type user:
         :return: A response object to run the API request.
@@ -2207,16 +2253,18 @@ class Team(BaseAPI):
 
 
 class Reactions(BaseAPI):
+    """Follows the Slack Reactions API. See https://api.slack.com/methods"""
+
     def add(self, name, file_=None, file_comment=None, channel=None,
             timestamp=None):
         """
-        Adds a reaction to an item        
-        
+        Adds a reaction to an item
+
         :param name: Reaction name
         :type name: str
-        :param file_: File to add reaction to 
+        :param file_: File to add reaction to
         :type file_: str
-        :param file_comment: File comment to add reaction to 
+        :param file_comment: File comment to add reaction to
         :type file_comment: str
         :param channel: Channel where the message to add reaction
         :type channel: str
@@ -2242,7 +2290,7 @@ class Reactions(BaseAPI):
             full=None):
         """
         Gets reactions for an item
-        
+
         :param file_: File to get reaction
         :type file_: str
         :param file_comment: File comment to get reaction
@@ -2268,7 +2316,7 @@ class Reactions(BaseAPI):
     def list(self, user=None, full=None, count=None, page=None):
         """
         List reactions made by a user
-        
+
         :param user: User ID to list reactions
         :type user: str
         :param full: Return complete reaction list
@@ -2292,7 +2340,7 @@ class Reactions(BaseAPI):
                timestamp=None):
         """
         Removes a reaction from an item
-        
+
         :param name: Reaction name
         :type name: str
         :param file_: File to remove reaction
@@ -2321,10 +2369,12 @@ class Reactions(BaseAPI):
 
 
 class Pins(BaseAPI):
+    """Follows the Slack Pins API. See https://api.slack.com/methods"""
+
     def add(self, channel, file_=None, file_comment=None, timestamp=None):
         """
         Pins an item to a channel
-        
+
         :param channel: The channel ID
         :type channel: str
         :param file_: The File ID to add
@@ -2350,7 +2400,7 @@ class Pins(BaseAPI):
     def remove(self, channel, file_=None, file_comment=None, timestamp=None):
         """
         Un-pins an item from a channel
-        
+
         :param channel: The channel ID
         :type channel: str
         :param file_: The File ID to remove
@@ -2376,7 +2426,7 @@ class Pins(BaseAPI):
     def list(self, channel):
         """
         Lists items pinned to a channel
-        
+
         :param channel: The channel ID
         :type channel: str
         :return: A response object to run the API request.
@@ -2386,10 +2436,12 @@ class Pins(BaseAPI):
 
 
 class UserGroupsUsers(BaseAPI):
+    """Follows the Slack UserGroupUsers API. See https://api.slack.com/methods"""
+
     def list(self, usergroup, include_disabled=False):
         """
         Lists all users in a usergroup
-        
+
         :param usergroup: The usergroup ID
         :type usergroup: str
         :param include_disabled: Include disabled users
@@ -2408,7 +2460,7 @@ class UserGroupsUsers(BaseAPI):
     def update(self, usergroup, users, include_count=False):
         """
         Updates the list of users for a usergroup
-        
+
         :param usergroup: The usergroup ID
         :type usergroup: str
         :param users: CSV of user IDs to add
@@ -2429,6 +2481,8 @@ class UserGroupsUsers(BaseAPI):
 
 
 class UserGroups(BaseAPI):
+    """Follows the Slack UserGroups API. See https://api.slack.com/methods"""
+
     def __init__(self, *args, **kwargs):
         super(UserGroups, self).__init__(*args, **kwargs)
         self._users = UserGroupsUsers(*args, **kwargs)
@@ -2439,8 +2493,8 @@ class UserGroups(BaseAPI):
 
     def list(self, include_disabled=False, include_count=False, include_users=False):
         """
-        Lists all of the usergroups 
-        
+        Lists all of the usergroups
+
         :param include_disabled: Include disabled usergroups
         :type include_disabled: bool
         :param include_count: Include the number of users in the usergroup
@@ -2459,8 +2513,8 @@ class UserGroups(BaseAPI):
     def create(self, name, handle=None, description=None, channels=None,
                include_count=False):
         """
-        Creates a new usergroup 
-        
+        Creates a new usergroup
+
         :param name: A name for the usergroup
         :type name: str
         :param handle: The mention handle
@@ -2489,7 +2543,7 @@ class UserGroups(BaseAPI):
                channels=None, include_count=True):
         """
         Update an existing usergroup
-        
+
         :param usergroup: The encoded ID of the usergroup
         :type usergroup: str
         :param name: A name for the usergroup
@@ -2520,7 +2574,7 @@ class UserGroups(BaseAPI):
     def disable(self, usergroup, include_count=True):
         """
         Disable a UserGroup
-        
+
         :param usergroup: The encoded ID of the usergroup
         :type usergroup: str
         :param include_count: Include the number of users
@@ -2536,7 +2590,7 @@ class UserGroups(BaseAPI):
     def enable(self, usergroup, include_count=True):
         """
         Enable a UserGroup
-        
+
         :param usergroup: The encoded ID of the usergroup
         :type usergroup: str
         :param include_count: Include the number of users
@@ -2551,10 +2605,12 @@ class UserGroups(BaseAPI):
 
 
 class DND(BaseAPI):
+    """Follows the Slack DND API. See https://api.slack.com/methods"""
+
     def team_info(self, users=[]):
         """
         Provides info about DND for a list of users on a Slack team
-        
+
         :param users: The list of user ids
         :type users: list[str]
         :return: A response object to run the request.
@@ -2568,7 +2624,7 @@ class DND(BaseAPI):
     def set_snooze(self, num_minutes):
         """
         The number of minutes to snooze
-        
+
         :param num_minutes: The number of minutes to snooze
         :type num_minutes: int
         :return: A response object to run the request.
@@ -2579,7 +2635,7 @@ class DND(BaseAPI):
     def info(self, user=None):
         """
         Retrieves the current user's DND status
-        
+
         :param user: User ID to fetch status
         :type user: str
         :return: A response object to run the request.
@@ -2590,7 +2646,7 @@ class DND(BaseAPI):
     def end_dnd(self):
         """
         Ends the current user's DND session
-        
+
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
@@ -2599,7 +2655,7 @@ class DND(BaseAPI):
     def end_snooze(self):
         """
         End's the current user's snooze
-        
+
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
@@ -2607,29 +2663,28 @@ class DND(BaseAPI):
 
 
 class Reminders(BaseAPI):
-    def add(self, text, time, user=None):
+    """Follows the Slack Reminders API. See https://api.slack.com/methods"""
+
+    def add(self, text, reminder_time, user=None):
         """
         Creates a reminder
-        
+
         :param text: Content of the reminder
         :type text: str
-        :param time: Unix timestamp to show the reminder
-        :type time: int
+        :param reminder_time: Unix timestamp to show the reminder
+        :type reminder_time: int
         :param user: User ID attached to the reminder
         :type user: str
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('reminders.add', data={
-            'text': text,
-            'time': time,
-            'user': user,
-        })
+        return self.post('reminders.add',
+                         data={'text': text, 'time': reminder_time, 'user': user})
 
     def complete(self, reminder):
         """
         Mark the reminder as completed
-        
+
         :param reminder: The reminder ID
         :type reminder: str
         :return: A response object to run the request.
@@ -2640,7 +2695,7 @@ class Reminders(BaseAPI):
     def delete(self, reminder):
         """
         Deletes a reminder
-        
+
         :param reminder: The reminder ID
         :type reminder: str
         :return: A response object to run the request.
@@ -2651,7 +2706,7 @@ class Reminders(BaseAPI):
     def info(self, reminder):
         """
         Returns information about a reminder
-        
+
         :param reminder: The reminder ID
         :type reminder: str
         :return: A response object to run the request.
@@ -2662,7 +2717,7 @@ class Reminders(BaseAPI):
     def list(self):
         """
         Returns a list of reminders created by or for a given user
-        
+
         :param :
         :type :
         :return: A response object to run the request.
@@ -2672,10 +2727,12 @@ class Reminders(BaseAPI):
 
 
 class Bots(BaseAPI):
+    """Follows the Slack Bots API. See https://api.slack.com/methods"""
+
     def info(self, bot=None):
         """
         Gets information about a bot user
-        
+
         :param bot: Bot user ID
         :type bot: str
         :return: A response object to run the request.
@@ -2685,10 +2742,12 @@ class Bots(BaseAPI):
 
 
 class IDPGroups(BaseAPI):
+    """Follows the Slack IDPGroups API. See https://api.slack.com/methods"""
+
     def list(self, include_users=False):
         """
         DEPRECATED? This class will be removed in the next major release.
-        
+
         :param :
         :type :
         :return :
@@ -2699,10 +2758,12 @@ class IDPGroups(BaseAPI):
 
 
 class OAuth(BaseAPI):
+    """Follows the Slack OAuth API. See https://api.slack.com/methods"""
+
     def access(self, client_id, client_secret, code, redirect_uri=None):
         """
-        Exchanges a temporary OAuth verifier code for an access token 
-        
+        Exchanges a temporary OAuth verifier code for an access token
+
         :param client_id: Issued when you created your application
         :type client_id: str
         :param client_secret: Issued when you created your application.
@@ -2725,8 +2786,8 @@ class OAuth(BaseAPI):
     def token(self, client_id, client_secret, code, redirect_uri=None,
               single_channel=None):
         """
-        Exchanges a temporary OAuth verifier code for a workspace token 
-        
+        Exchanges a temporary OAuth verifier code for a workspace token
+
         :param client_id: Issued when you created your application
         :type client_id: str
         :param client_secret: Issued when you created your application.
@@ -2751,6 +2812,8 @@ class OAuth(BaseAPI):
 
 
 class AppsPermissions(BaseAPI):
+    """Follows the Slack AppsPermissions API. See https://api.slack.com/methods"""
+
     def info(self):
         """
         All current permissions this app has (deprecated)
@@ -2779,6 +2842,8 @@ class AppsPermissions(BaseAPI):
 
 
 class Apps(BaseAPI):
+    """Follows the Slack Apps API. See https://api.slack.com/methods"""
+
     def __init__(self, *args, **kwargs):
         super(Apps, self).__init__(*args, **kwargs)
         self._permissions = AppsPermissions(*args, **kwargs)
@@ -2789,6 +2854,8 @@ class Apps(BaseAPI):
 
 
 class IncomingWebhook(object):
+    """Follows the Slack IncomingWebhook API. See https://api.slack.com/methods"""
+
     def __init__(self, url=None, timeout=DEFAULT_TIMEOUT, proxies=None):
         self.url = url
         self.timeout = timeout
@@ -2805,13 +2872,16 @@ class IncomingWebhook(object):
         :rtype: :class:`Response <Response>` object
         """
         if not self.url:
-            raise Error('URL for incoming webhook is undefined')
+            raise SlackestError('URL for incoming webhook is undefined')
 
         return requests.post(self.url, data=json.dumps(data),
                              timeout=self.timeout, proxies=self.proxies)
 
 
 class Slackest(object):
+    """The main Slackest work horse. Surfaces some convenience methods but mostly
+    interfaces with the auxilary classes."""
+
     oauth = OAuth(timeout=DEFAULT_TIMEOUT)
 
     def __init__(self, token, incoming_webhook_url=None,
@@ -2960,7 +3030,7 @@ class Slackest(object):
         """
         return self.chat.post_message(channel, text=message, thread_ts=thread_ts, link_names=True)
 
-    def add_member_to_channel(self,channel, member):
+    def add_member_to_channel(self, channel, member):
         """
         Invites a user to a channel
 
@@ -2984,18 +3054,18 @@ class Slackest(object):
         """
         return self.channels.info(channel)
 
-    def get_replies(self, channel, ts):
+    def get_replies(self, channel, time_stamp):
         """
         Fetches all replies in a thread of messages
 
         :param channel: The channel ID
         :type channel: str
-        :param ts: Unique identifier of a thread's parent message
-        :type ts: str
+        :param time_stamp: Unique identifier of a thread's parent message
+        :type time_stamp: str
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.replies_all(channel, ts)
+        return self.conversation.replies_all(channel, time_stamp)
 
     def set_purpose(self, channel, purpose):
         """
