@@ -60,7 +60,7 @@ A wheel and a source distribution is provided according to the buildspec.
 Building Locally
 ----------------
 
-For local build testing, use the local CodeBuild image. See `this AWS blog post <https://aws.amazon.com/blogs/devops/announcing-local-build-support-for-aws-codebuild/>` for more details.
+For local build testing, use the local CodeBuild image. See `this AWS blog post <https://aws.amazon.com/blogs/devops/announcing-local-build-support-for-aws-codebuild/>`_ for more details.
 
 .. code-block:: bash
 
