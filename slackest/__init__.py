@@ -26,7 +26,7 @@ DEFAULT_TIMEOUT = 10
 DEFAULT_RETRIES = 0
 # seconds to wait after a 429 error if Slack's API doesn't provide one
 DEFAULT_WAIT = 20
-DEFAULT_API_SLEEP = 5
+DEFAULT_API_SLEEP = 6
 
 __version__ = '0.13.3'
 __all__ = ['SlackestError', 'Response', 'BaseAPI', 'API', 'Auth', 'Users',
@@ -1118,7 +1118,7 @@ class Conversation(BaseAPI):
                          data={'cursor': cursor, 'exclude_archived': str(exclude_archived).lower(),
                                'limit': limit, 'types': types})
 
-    def list_all(self, exclude_archived=False, types="public_channel"):
+    def list_all(self, exclude_archived=True, types="public_channel", limit=500):
         """
         Lists all channels
 
@@ -1131,13 +1131,13 @@ class Conversation(BaseAPI):
         """
         response = self.get('conversations.list',
                             params={'exclude_archived': str(exclude_archived).lower(),
-                                    'types': types})
+                                    'types': types, 'limit': limit})
         channels = response.body.get('channels', [])
         next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
         while next_cursor:
             response = self.get('conversations.list',
                                 params={'exclude_archived': str(exclude_archived).lower(),
-                                        'types': types, 'cursor': next_cursor})
+                                        'types': types, 'limit': limit, 'cursor': next_cursor})
             if response is not None:
                 channels.extend(response.body.get('channels', []))
                 next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
@@ -1316,6 +1316,45 @@ class Conversation(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         return self.post('conversations.unarchive', data={'channel': channel})
+
+    def get_channel_id(self, channel_name, types="public_channel", limit=500):
+        """
+        Gets a channel ID according to the channel's name
+
+        :param channel_name: The channel's name
+        :type channel_name: str
+        :param types: channel type - either private_channel or public_channel
+        :type channel_name: str
+        :param limit: The maximum number of items to return.
+        :type channel_name: int
+        :return: Returns the channel ID
+        :rtype: str
+        """
+        response = self.get('conversations.list',
+                            params={'exclude_archived': str(False).lower(),
+                                    'types': types, 'limit': limit})
+        channels = response.body.get('channels', [])
+        channel_id=get_item_id_by_name(channels, channel_name)
+        if channel_id is not None:
+            return channel_id
+        next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+        while next_cursor:
+            response = self.get('conversations.list',
+                                params={'exclude_archived': str(False).lower(),
+                                        'types': types, 'limit': limit, 'cursor': next_cursor})
+            if response is not None:
+                channels_= response.body.get('channels', [])
+                channel_id=get_item_id_by_name(channels_,channel_name)
+                if channel_id is not None:
+                    return channel_id
+                channels.extend(response.body.get('channels', []))
+                next_cursor = response.body.get('response_metadata', {}).get('next_cursor', '')
+                time.sleep(DEFAULT_API_SLEEP)
+            else:
+                raise SlackestError("Null response received. You've probably hit the rate limit.")
+        if channels:
+            response.body['channels'] = channels
+        return get_item_id_by_name(channels, channel_name)
 
 
 class Chat(BaseAPI):
@@ -3105,3 +3144,27 @@ class Slackest(object):
         :rtype: :class:`Response <Response>` object
         """
         return self.files.upload(filename, channels=channels)
+
+    def get_user_id(self,user_name):
+        """
+        Gets the user_id of a user
+
+        :param user_name: Slack username
+        :type: str
+        :return: Slack user ID
+        :rtype: str
+        """
+        return self.users.get_user_id(user_name)
+
+    def get_channel_id(self,channel_name, types='public_channel'):
+        """
+        Gets the channel_id of a channel
+
+        :param channel_name: Slack channel username
+        :type: str
+        :param types: Channel type - either public_channel or private_channel
+        :type: str
+        :return: Slack channel ID
+        :rtype: str
+        """
+        return self.conversation.get_channel_id(channel_name, types)
