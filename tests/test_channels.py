@@ -10,7 +10,7 @@ from slackest import Channels
 
 
 class TestUtils(unittest.TestCase):
-    @patch('slackest.requests')
+    @patch('slackest.base_api.requests')
     def test_get_channel_id(self, mock_requests):
         json_to_text = json.dumps(stubs.good_channel_list_response)
 
@@ -24,7 +24,7 @@ class TestUtils(unittest.TestCase):
             'C0G9QF9GW', channels.get_channel_id('random')
         )
 
-    @patch('slackest.requests')
+    @patch('slackest.base_api.requests')
     def test_get_channel_id_without_channel(self, mock_requests):
         json_to_text = json.dumps(stubs.good_channel_list_response)
 
