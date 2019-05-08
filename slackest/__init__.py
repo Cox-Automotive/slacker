@@ -16,7 +16,7 @@ import datetime
 import json
 import time
 
-from slackest.utils import get_item_id_by_name
+from .utils import get_item_id_by_name
 
 
 from .constants import *
