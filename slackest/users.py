@@ -151,4 +151,5 @@ class Users(BaseAPI):
         """
         response = self.get('users.lookupByEmail', params={'email': str(email).lower()})
         users = response.body.get('user', [])
-        return get_item_id_by_email(users, email)
+        if users['profile']['email'] == email:
+            return users['id']

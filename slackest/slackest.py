@@ -264,4 +264,23 @@ class Slackest(object):
         """
         return self.files.upload(filename, channels=channels)
 
-    #def direct_message_user_by_name(self, user_name, text=None, message_as=None, as_user=False):
+    def direct_message_user_by_email(self, user_email, text=None, message_as=None, as_user=False):
+        '''
+        Sends a direct message to user based on slack user name
+
+        :param user_email: slack user email you want to message
+        :type user_email: str
+        :param text: message to send
+        :type text: str
+        :param message_as: bot name you want to send message as
+        :type message_as: str
+        :param as_user: if you want message to be sent as you change to True
+        :type message_as: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object 
+        '''
+        user = self.users.get_user_id_by_email(user_email)
+        open_channel = self.im.open(user)
+        channel = open_channel.body.get('channel', [])
+        return self.chat.post_message(channel['id'], text, message_as, as_user)
+
