@@ -3,7 +3,7 @@ from .base_api import BaseAPI
 from .slackest_error import SlackestError
 from .users_profile import UsersProfile
 from .users_admin import UsersAdmin
-from .utils import get_item_id_by_name
+from .utils import *
 from .constants import *
 
 
@@ -139,3 +139,16 @@ class Users(BaseAPI):
         """
         members = self.list_all().body['members']
         return get_item_id_by_name(members, user_name)
+
+    def get_user_id_by_email(self, email):
+        """
+        Gets a user ID according to the user's name
+
+        :param user_name: The user's name
+        :type user_name: str
+        :return: Returns the user ID
+        :rtype: str
+        """
+        response = self.get('users.lookupByEmail', params={'email': str(email).lower()})
+        users = response.body.get('user', [])
+        return get_item_id_by_email(users, email)

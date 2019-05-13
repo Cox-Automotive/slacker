@@ -263,3 +263,5 @@ class Slackest(object):
         :rtype: :class:`Response <Response>` object
         """
         return self.files.upload(filename, channels=channels)
+
+    #def direct_message_user_by_name(self, user_name, text=None, message_as=None, as_user=False):
