@@ -264,7 +264,10 @@ class Slackest(object):
         """
         return self.files.upload(filename, channels=channels)
 
-    def direct_message_user_by_email(self, user_email, text=None, message_as=None, as_user=False):
+    def direct_message_user_by_email(self, user_email, text=None, message_as=None, as_user=False, 
+                     parse=None, link_names=None, attachments=None,
+                     unfurl_links=None, unfurl_media=None, icon_url=None,
+                     icon_emoji=None, thread_ts=None, reply_broadcast=None):
         '''
         Sends a direct message to user based on slack user name
 
@@ -276,11 +279,29 @@ class Slackest(object):
         :type message_as: str
         :param as_user: if you want message to be sent as you change to True
         :type message_as: str
+        :param parse: Change how messages are treated
+        :type parse: str
+        :param link_names: Find and link channel names and username
+        :type link_names: str
+        :param attachments: JSON based array of structured attachments
+        :type attachments: JSON
+        :param unfurl_links: Enable unfurling of links
+        :type unfurl_links: str
+        :param unfurl_media: Enable unfurling of media
+        :type unfurl_media: str
+        :param icon_url: The icon URL
+        :type icon_url: str
+        :param icon_emoji: Emoji to use as the icon for this message
+        :type icon_emoji: str
+        :param thread_ts: Provide another messages ts value to make this message a reply
+        :type thread_ts: str
+        :param reply_broadcast: Indicates whether reply should be visible in the channel
+        :type reply_broadcast: str
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object 
         '''
         user = self.users.get_user_id_by_email(user_email)
         open_channel = self.im.open(user)
         channel = open_channel.body.get('channel', [])
-        return self.chat.post_message(channel['id'], text, message_as, as_user)
+        return self.chat.post_message(channel['id'], text, message_as, as_user, parse, link_names, attachments, unfurl_links, unfurl_media, icon_url, icon_emoji, thread_ts, reply_broadcast)
 
