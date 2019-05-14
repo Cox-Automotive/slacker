@@ -2,6 +2,8 @@ import datetime
 import time
 
 from .base_api import BaseAPI
+from .slackest_error import SlackestError
+from .constants import *
 
 class Conversation(BaseAPI):
     """Follows the Slack Conversation API.
