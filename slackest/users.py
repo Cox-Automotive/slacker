@@ -149,7 +149,10 @@ class Users(BaseAPI):
         :return: Returns the user ID
         :rtype: str
         """
-        response = self.get('users.lookupByEmail', params={'email': str(email).lower()})
-        users = response.body.get('user', [])
-        if users['profile']['email'] == email:
-            return users['id']
+        try:
+            response = self.get('users.lookupByEmail', params={'email': str(email).lower()})
+            users = response.body.get('user', [])
+            if users['profile']['email'] == email:
+                return users['id']
+        except: 
+            print("Email entered does not exist in this workspace")
