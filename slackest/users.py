@@ -138,7 +138,7 @@ class Users(BaseAPI):
         :rtype: str
         """
         members = self.list_all().body['members']
-        return get_item_id_by_name(members, user_name)
+        yield get_item_id_by_name(members, user_name)
 
     def get_user_id_by_email(self, email):
         """
@@ -149,10 +149,7 @@ class Users(BaseAPI):
         :return: Returns the user ID
         :rtype: str
         """
-        try:
-            response = self.get('users.lookupByEmail', params={'email': str(email).lower()})
-            users = response.body.get('user', [])
-            if users['profile']['email'] == email:
-                return users['id']
-        except: 
-            print("Email entered does not exist in this workspace")
+        response = self.get('users.lookupByEmail', params={'email': str(email).lower()})
+        users = response.body.get('user', [])
+        if users['profile']['email'] == email:
+            yield users['id']
