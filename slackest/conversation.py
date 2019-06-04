@@ -2,6 +2,8 @@ import datetime
 import time
 
 from .base_api import BaseAPI
+from .constants import *
+from .slackest_error import SlackestError
 
 class Conversation(BaseAPI):
     """Follows the Slack Conversation API.
@@ -20,7 +22,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversation.archive', data={'channel': channel})
+        yield self.post('conversation.archive', data={'channel': channel})
 
     def close(self, channel):
         """
@@ -31,7 +33,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.close', data={'channel': channel})
+        yield self.post('conversations.close', data={'channel': channel})
 
     def create(self, name, is_private=True, users=[]):
         """
@@ -49,7 +51,7 @@ class Conversation(BaseAPI):
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
 
-        return self.post('conversations.create',
+        yield self.post('conversations.create',
                          data={'name': name, 'is_private': str(is_private).lower(),
                                'user_ids': users})
 
@@ -73,7 +75,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('conversations.history',
+        yield self.get('conversations.history',
                         data={'channel': channel, 'cursor': cursor,
                               'inclusive': int(inclusive), 'limit': limit,
                               'latest': latest, 'oldest': oldest})
@@ -102,7 +104,7 @@ class Conversation(BaseAPI):
 
         if conversations:
             response.body['messages'] = conversations
-        return response
+        yield response
 
     def info(self, channel, include_locale=False, include_num_members=False):
         """
@@ -117,7 +119,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.info', data={
+        yield self.post('conversations.info', data={
             'channel': channel,
             'include_locale': str(include_locale).lower(),
             'include_num_members': str(include_num_members).lower()})
@@ -135,7 +137,7 @@ class Conversation(BaseAPI):
         """
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
-        return self.post('conversations.invite', data={'channel': channel, 'users': users})
+        yield self.post('conversations.invite', data={'channel': channel, 'users': users})
 
     def join(self, channel):
         """
@@ -146,7 +148,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.join', data={'channel': channel})
+        yield self.post('conversations.join', data={'channel': channel})
 
     def kick(self, channel, user):
         """
@@ -159,7 +161,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.kick', data={'channel': channel, 'user': user})
+        yield self.post('conversations.kick', data={'channel': channel, 'user': user})
 
     def leave(self, channel):
         """
@@ -170,7 +172,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.leave', data={'channel': channel})
+        yield self.post('conversations.leave', data={'channel': channel})
 
     def list(self, cursor=None, exclude_archived=False, limit=100, types="public_channel"):
         """
@@ -187,7 +189,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.list',
+        yield self.post('conversations.list',
                          data={'cursor': cursor, 'exclude_archived': str(exclude_archived).lower(),
                                'limit': limit, 'types': types})
 
@@ -220,7 +222,7 @@ class Conversation(BaseAPI):
 
         if channels:
             response.body['channels'] = channels
-        return response
+        yield response
 
     def members(self, channel, cursor=None, limit=100):
         """
@@ -235,7 +237,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.members',
+        yield self.post('conversations.members',
                          data={'channel': channel, 'cursor': cursor, 'limit': limit})
 
     def members_all(self, channel):
@@ -262,7 +264,7 @@ class Conversation(BaseAPI):
 
         if members:
             response.body['members'] = members
-        return response
+        yield response
 
     def open(self, channel, return_im=True, users=[]):
         """
@@ -318,7 +320,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.replies',
+        yield self.post('conversations.replies',
                          data={'channel': channel, 'ts': time_stamp, 'cursor': cursor,
                                'inclusive': int(inclusive), 'limit': limit,
                                'latest': latest, 'oldest': oldest})
@@ -351,7 +353,7 @@ class Conversation(BaseAPI):
 
         if replies:
             response.body['message'] = replies
-        return response
+        yield response
 
     def setPurpose(self, channel, purpose):
         """
@@ -364,7 +366,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.setPurpose', data={'channel': channel, 'purpose': purpose})
+        yield self.post('conversations.setPurpose', data={'channel': channel, 'purpose': purpose})
 
     def setTopic(self, channel, topic):
         """
@@ -377,7 +379,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.setTopic', data={'channel': channel, 'topic': topic})
+        yield self.post('conversations.setTopic', data={'channel': channel, 'topic': topic})
 
     def unarchive(self, channel):
         """
@@ -388,4 +390,4 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.unarchive', data={'channel': channel})
+        yield self.post('conversations.unarchive', data={'channel': channel})

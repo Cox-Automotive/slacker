@@ -1,3 +1,6 @@
+import requests
+import json
+
 from .slackest_error import SlackestError
 from .constants import *
 
@@ -22,5 +25,5 @@ class IncomingWebhook(object):
         if not self.url:
             raise SlackestError('URL for incoming webhook is undefined')
 
-        return requests.post(self.url, data=json.dumps(data),
+        yield requests.post(self.url, data=json.dumps(data),
                              timeout=self.timeout, proxies=self.proxies)

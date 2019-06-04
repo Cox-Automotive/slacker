@@ -13,7 +13,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.create', data={'name': name})
+        yield self.post('channels.create', data={'name': name})
 
     def info(self, channel):
         """
@@ -24,7 +24,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('channels.info', params={'channel': channel})
+        yield self.get('channels.info', params={'channel': channel})
 
     def list(self, exclude_archived=True, exclude_members=False):
         """
@@ -61,7 +61,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('channels.history',
+        yield self.get('channels.history',
                         params={
                             'channel': channel,
                             'latest': latest,
@@ -82,7 +82,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.mark',
+        yield self.post('channels.mark',
                          data={'channel': channel, 'ts': time_stamp})
 
     def join(self, name):
@@ -94,7 +94,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.join', data={'name': name})
+        yield self.post('channels.join', data={'name': name})
 
     def leave(self, channel):
         """
@@ -105,7 +105,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.leave', data={'channel': channel})
+        yield self.post('channels.leave', data={'channel': channel})
 
     def invite(self, channel, user):
         """
@@ -118,7 +118,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.invite',
+        yield self.post('channels.invite',
                          data={'channel': channel, 'user': user})
 
     def kick(self, channel, user):
@@ -132,7 +132,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.kick',
+        yield self.post('channels.kick',
                          data={'channel': channel, 'user': user})
 
     def rename(self, channel, name):
@@ -146,7 +146,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.rename',
+        yield self.post('channels.rename',
                          data={'channel': channel, 'name': name})
 
     def replies(self, channel, thread_ts):
@@ -160,7 +160,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('channels.replies',
+        yield self.get('channels.replies',
                         params={'channel': channel, 'thread_ts': thread_ts})
 
     def archive(self, channel):
@@ -172,7 +172,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.archive', data={'channel': channel})
+        yield self.post('channels.archive', data={'channel': channel})
 
     def unarchive(self, channel):
         """
@@ -183,7 +183,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.unarchive', data={'channel': channel})
+        yield self.post('channels.unarchive', data={'channel': channel})
 
     def set_purpose(self, channel, purpose):
         """
@@ -196,7 +196,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.setPurpose',
+        yield self.post('channels.setPurpose',
                          data={'channel': channel, 'purpose': purpose})
 
     def set_topic(self, channel, topic):
@@ -210,7 +210,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('channels.setTopic',
+        yield self.post('channels.setTopic',
                          data={'channel': channel, 'topic': topic})
 
     def get_channel_id(self, channel_name):
@@ -223,4 +223,4 @@ class Channels(BaseAPI):
         :rtype: str
         """
         channels = self.list().body['channels']
-        return get_item_id_by_name(channels, channel_name)
+        yield get_item_id_by_name(channels, channel_name)

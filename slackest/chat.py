@@ -45,7 +45,7 @@ class Chat(BaseAPI):
             if isinstance(attachments, list):
                 attachments = json.dumps(attachments)
 
-        return self.post('chat.postMessage',
+        yield self.post('chat.postMessage',
                          data={
                              'channel': channel,
                              'text': text,
@@ -73,7 +73,7 @@ class Chat(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('chat.meMessage',
+        yield self.post('chat.meMessage',
                          data={'channel': channel, 'text': text})
 
     def command(self, channel, command, text):
@@ -89,7 +89,7 @@ class Chat(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('chat.command',
+        yield self.post('chat.command',
                          data={
                              'channel': channel,
                              'command': command,
@@ -121,7 +121,7 @@ class Chat(BaseAPI):
         # Ensure attachments are json encoded
         if attachments is not None and isinstance(attachments, list):
             attachments = json.dumps(attachments)
-        return self.post('chat.update',
+        yield self.post('chat.update',
                          data={'channel': channel, 'ts': time_stamp, 'text': text,
                                'attachments': attachments, 'parse': parse,
                                'link_names': str(link_names).lower(),
@@ -140,7 +140,7 @@ class Chat(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('chat.delete',
+        yield self.post('chat.delete',
                          data={'channel': channel, 'ts': time_stamp,
                                'as_user': str(as_user).lower()})
 
@@ -169,7 +169,7 @@ class Chat(BaseAPI):
         # Ensure attachments are json encoded
         if attachments is not None and isinstance(attachments, list):
             attachments = json.dumps(attachments)
-        return self.post('chat.postEphemeral',
+        yield self.post('chat.postEphemeral',
                          data={
                              'channel': channel,
                              'text': text,
@@ -200,7 +200,7 @@ class Chat(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('chat.unfurl',
+        yield self.post('chat.unfurl',
                          data={'channel': channel, 'ts': time_stamp,
                                'unfurls': unfurls, 'user_auth_message': user_auth_message,
                                'user_auth_required': int(user_auth_required),
@@ -217,5 +217,5 @@ class Chat(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('chat.getPermalink',
+        yield self.get('chat.getPermalink',
                         params={'channel': channel, 'message_ts': message_ts})
