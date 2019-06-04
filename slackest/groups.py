@@ -12,7 +12,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.create', data={'name': name})
+        yield self.post('groups.create', data={'name': name})
 
     def create_child(self, channel):
         """
@@ -28,7 +28,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.createChild', data={'channel': channel})
+        yield self.post('groups.createChild', data={'channel': channel})
 
     def info(self, channel):
         """
@@ -39,7 +39,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('groups.info', params={'channel': channel})
+        yield self.get('groups.info', params={'channel': channel})
 
     def list(self, exclude_archived=True, exclude_members=False):
         """
@@ -52,7 +52,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('groups.list',
+        yield self.get('groups.list',
                         params={'exclude_archived': str(exclude_archived).lower(),
                                 'exclude_members': str(exclude_members).lower()})
 
@@ -74,7 +74,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('groups.history',
+        yield self.get('groups.history',
                         params={
                             'channel': channel,
                             'latest': latest,
@@ -94,7 +94,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.invite',
+        yield self.post('groups.invite',
                          data={'channel': channel, 'user': user})
 
     def kick(self, channel, user):
@@ -108,7 +108,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.kick',
+        yield self.post('groups.kick',
                          data={'channel': channel, 'user': user})
 
     def leave(self, channel):
@@ -120,7 +120,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.leave', data={'channel': channel})
+        yield self.post('groups.leave', data={'channel': channel})
 
     def mark(self, channel, time_stamp):
         """
@@ -133,7 +133,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.mark', data={'channel': channel, 'ts': time_stamp})
+        yield self.post('groups.mark', data={'channel': channel, 'ts': time_stamp})
 
     def rename(self, channel, name):
         """
@@ -146,7 +146,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.rename',
+        yield self.post('groups.rename',
                          data={'channel': channel, 'name': name})
 
     def replies(self, channel, thread_ts):
@@ -160,7 +160,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('groups.replies',
+        yield self.get('groups.replies',
                         params={'channel': channel, 'thread_ts': thread_ts})
 
     def archive(self, channel):
@@ -172,7 +172,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.archive', data={'channel': channel})
+        yield self.post('groups.archive', data={'channel': channel})
 
     def unarchive(self, channel):
         """
@@ -183,7 +183,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.unarchive', data={'channel': channel})
+        yield self.post('groups.unarchive', data={'channel': channel})
 
     def open(self, channel):
         """
@@ -194,7 +194,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.open', data={'channel': channel})
+        yield self.post('groups.open', data={'channel': channel})
 
     def close(self, channel):
         """
@@ -205,7 +205,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.close', data={'channel': channel})
+        yield self.post('groups.close', data={'channel': channel})
 
     def set_purpose(self, channel, purpose):
         """
@@ -218,7 +218,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.setPurpose',
+        yield self.post('groups.setPurpose',
                          data={'channel': channel, 'purpose': purpose})
 
     def set_topic(self, channel, topic):
@@ -232,5 +232,5 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('groups.setTopic',
+        yield self.post('groups.setTopic',
                          data={'channel': channel, 'topic': topic})

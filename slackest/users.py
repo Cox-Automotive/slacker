@@ -5,6 +5,7 @@ from .users_profile import UsersProfile
 from .users_admin import UsersAdmin
 from .utils import get_item_id_by_name
 from .constants import *
+from .response import Response
 
 
 class Users(BaseAPI):
@@ -138,4 +139,4 @@ class Users(BaseAPI):
         :rtype: str
         """
         members = self.list_all().body['members']
-        return get_item_id_by_name(members, user_name)
+        return get_item_id_by_name(members, user_name) 

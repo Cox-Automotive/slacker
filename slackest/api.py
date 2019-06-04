@@ -17,4 +17,4 @@ class API(BaseAPI):
         if error:
             kwargs['error'] = error
 
-        return self.get('api.test', params=kwargs)
+        yield self.get('api.test', params=kwargs)
