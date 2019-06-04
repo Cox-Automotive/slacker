@@ -21,7 +21,7 @@ class Pins(BaseAPI):
         # One of file, file_comment, or timestamp must also be specified
         assert file_ or file_comment or timestamp
 
-        return self.post('pins.add',
+        yield self.post('pins.add',
                          data={
                              'channel': channel,
                              'file': file_,
@@ -47,7 +47,7 @@ class Pins(BaseAPI):
         # One of file, file_comment, or timestamp must also be specified
         assert file_ or file_comment or timestamp
 
-        return self.post('pins.remove',
+        yield self.post('pins.remove',
                          data={
                              'channel': channel,
                              'file': file_,
@@ -64,5 +64,5 @@ class Pins(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('pins.list', params={'channel': channel})
+        yield self.get('pins.list', params={'channel': channel})
 

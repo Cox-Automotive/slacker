@@ -15,7 +15,7 @@ class MPIM(BaseAPI):
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
 
-        return self.post('mpim.open', data={'users': users})
+        yield self.post('mpim.open', data={'users': users})
 
     def close(self, channel):
         """
@@ -26,7 +26,7 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('mpim.close', data={'channel': channel})
+        yield self.post('mpim.close', data={'channel': channel})
 
     def mark(self, channel, time_stamp):
         """
@@ -39,7 +39,7 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('mpim.mark', data={'channel': channel, 'ts': time_stamp})
+        yield self.post('mpim.mark', data={'channel': channel, 'ts': time_stamp})
 
     def list(self):
         """
@@ -48,7 +48,7 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('mpim.list')
+        yield self.get('mpim.list')
 
     def history(self, channel, latest=None, oldest=None, inclusive=False,
                 count=None, unreads=False):
@@ -70,7 +70,7 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('mpim.history',
+        yield self.get('mpim.history',
                         params={
                             'channel': channel,
                             'latest': latest,
@@ -91,5 +91,5 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('mpim.replies',
+        yield self.get('mpim.replies',
                         params={'channel': channel, 'thread_ts': thread_ts})

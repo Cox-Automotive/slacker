@@ -16,7 +16,7 @@ class Reminders(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('reminders.add',
+        yield self.post('reminders.add',
                          data={'text': text, 'time': reminder_time, 'user': user})
 
     def complete(self, reminder):
@@ -28,7 +28,7 @@ class Reminders(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('reminders.complete', data={'reminder': reminder})
+        yield self.post('reminders.complete', data={'reminder': reminder})
 
     def delete(self, reminder):
         """
@@ -39,7 +39,7 @@ class Reminders(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('reminders.delete', data={'reminder': reminder})
+        yield self.post('reminders.delete', data={'reminder': reminder})
 
     def info(self, reminder):
         """
@@ -50,7 +50,7 @@ class Reminders(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('reminders.info', params={'reminder': reminder})
+        yield self.get('reminders.info', params={'reminder': reminder})
 
     def list(self):
         """
@@ -61,5 +61,5 @@ class Reminders(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('reminders.list')
+        yield self.get('reminders.list')
 

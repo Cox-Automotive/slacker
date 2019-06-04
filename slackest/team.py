@@ -10,7 +10,7 @@ class Team(BaseAPI):
 
     @property
     def profile(self):
-        return self._profile
+        yield self._profile
 
     def info(self):
         """
@@ -19,7 +19,7 @@ class Team(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('team.info')
+        yield self.get('team.info')
 
     def access_logs(self, count=None, page=None, before=None):
         """
@@ -34,7 +34,7 @@ class Team(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('team.accessLogs',
+        yield self.get('team.accessLogs',
                         params={
                             'count': count,
                             'page': page,
@@ -61,7 +61,7 @@ class Team(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('team.integrationLogs',
+        yield self.get('team.integrationLogs',
                         params={
                             'service_id': service_id,
                             'app_id': app_id,
@@ -80,5 +80,5 @@ class Team(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('team.billableInfo', params={'user': user})
+        yield self.get('team.billableInfo', params={'user': user})
 

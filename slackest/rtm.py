@@ -16,7 +16,7 @@ class RTM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('rtm.start',
+        yield self.get('rtm.start',
                         params={
                             'simple_latest': str(simple_latest).lower(),
                             'no_unreads': str(no_unreads).lower(),
@@ -30,4 +30,4 @@ class RTM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('rtm.connect')
+        yield self.get('rtm.connect')

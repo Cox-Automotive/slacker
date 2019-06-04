@@ -25,7 +25,7 @@ class Reactions(BaseAPI):
         # must be specified
         assert (file_ or file_comment) or (channel and timestamp)
 
-        return self.post('reactions.add',
+        yield self.post('reactions.add',
                          data={
                              'name': name,
                              'file': file_,
@@ -52,7 +52,7 @@ class Reactions(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return super(Reactions, self).get('reactions.get',
+        yield super(Reactions, self).get('reactions.get',
                                           params={
                                               'file': file_,
                                               'file_comment': file_comment,
@@ -76,7 +76,7 @@ class Reactions(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return super(Reactions, self).get('reactions.list',
+        yield super(Reactions, self).get('reactions.list',
                                           params={
                                               'user': user,
                                               'full': full,
@@ -106,7 +106,7 @@ class Reactions(BaseAPI):
         # must be specified
         assert (file_ or file_comment) or (channel and timestamp)
 
-        return self.post('reactions.remove',
+        yield self.post('reactions.remove',
                          data={
                              'name': name,
                              'file': file_,

@@ -113,7 +113,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.create(name, is_private, users)
+        yield self.conversation.create(name, is_private, users)
 
     def get_channels(self, exclude_archive, types):
         """
@@ -126,7 +126,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.list_all(exclude_archived=exclude_archive, types=types)
+        yield self.conversation.list_all(exclude_archived=exclude_archive, types=types)
 
     def list_all_users(self):
         """
@@ -135,7 +135,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.users.list_all(include_locale=True)
+        yield self.users.list_all(include_locale=True)
 
     def kick_user(self, channel, user):
         """
@@ -148,7 +148,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.kick(channel, user)
+        yield self.conversation.kick(channel, user)
 
     def history_all(self, channel):
         """
@@ -159,7 +159,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.history_all(channel)
+        yield self.conversation.history_all(channel)
 
     def post_message_to_channel(self, channel, message):
         """
@@ -172,7 +172,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.chat.post_message(channel, text=message, link_names=True)
+        yield self.chat.post_message(channel, text=message, link_names=True)
 
     def post_thread_to_message(self, channel, message, thread_ts):
         """
@@ -186,7 +186,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.chat.post_message(channel, text=message, thread_ts=thread_ts, link_names=True)
+        yield self.chat.post_message(channel, text=message, thread_ts=thread_ts, link_names=True)
 
     def add_member_to_channel(self, channel, member):
         """
@@ -199,7 +199,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.invite(channel, member)
+        yield self.conversation.invite(channel, member)
 
     def get_channel_info(self, channel):
         """
@@ -210,7 +210,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.channels.info(channel)
+        yield self.channels.info(channel)
 
     def get_replies(self, channel, time_stamp):
         """
@@ -223,7 +223,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.replies_all(channel, time_stamp)
+        yield self.conversation.replies_all(channel, time_stamp)
 
     def set_purpose(self, channel, purpose):
         """
@@ -236,7 +236,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.setPurpose(channel, purpose)
+        yield self.conversation.setPurpose(channel, purpose)
 
     def set_topic(self, channel, topic):
         """
@@ -249,7 +249,7 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.conversation.setTopic(channel, topic)
+        yield self.conversation.setTopic(channel, topic)
 
     def upload_file(self, filename, channels):
         """
@@ -262,4 +262,4 @@ class Slackest(object):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.files.upload(filename, channels=channels)
+        yield self.files.upload(filename, channels=channels)

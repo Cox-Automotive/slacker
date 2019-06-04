@@ -10,7 +10,7 @@ class UserGroups(BaseAPI):
 
     @property
     def users(self):
-        return self._users
+        yield self._users
 
     def list(self, include_disabled=False, include_count=False, include_users=False):
         """
@@ -25,7 +25,7 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('usergroups.list', params={
+        yield self.get('usergroups.list', params={
             'include_disabled': str(include_disabled).lower(),
             'include_count': str(include_count).lower(),
             'include_users': str(include_users).lower(),
@@ -52,7 +52,7 @@ class UserGroups(BaseAPI):
         if isinstance(channels, (tuple, list)):
             channels = ','.join(channels)
 
-        return self.post('usergroups.create', data={
+        yield self.post('usergroups.create', data={
             'name': name,
             'handle': handle,
             'description': description,
@@ -83,7 +83,7 @@ class UserGroups(BaseAPI):
         if isinstance(channels, (tuple, list)):
             channels = ','.join(channels)
 
-        return self.post('usergroups.update', data={
+        yield self.post('usergroups.update', data={
             'usergroup': usergroup,
             'name': name,
             'handle': handle,
@@ -103,7 +103,7 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('usergroups.disable', data={
+        yield self.post('usergroups.disable', data={
             'usergroup': usergroup,
             'include_count': str(include_count).lower(),
         })
@@ -119,7 +119,7 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('usergroups.enable', data={
+        yield self.post('usergroups.enable', data={
             'usergroup': usergroup,
             'include_count': str(include_count).lower(),
         })
