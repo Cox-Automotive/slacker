@@ -37,7 +37,7 @@ class Stars(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('stars.list',
+        yield self.get('stars.list',
                         params={'user': user, 'count': count, 'page': page})
 
     def remove(self, file_=None, file_comment=None, channel=None, timestamp=None):

@@ -17,7 +17,7 @@ class UserGroupsUsers(BaseAPI):
         if isinstance(include_disabled, bool):
             include_disabled = str(include_disabled).lower()
 
-        return self.get('usergroups.users.list', params={
+        yield self.get('usergroups.users.list', params={
             'usergroup': usergroup,
             'include_disabled': include_disabled,
         })
@@ -38,7 +38,7 @@ class UserGroupsUsers(BaseAPI):
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
 
-        return self.post('usergroups.users.update', data={
+        yield self.post('usergroups.users.update', data={
             'usergroup': usergroup,
             'users': users,
             'include_count': str(include_count).lower(),

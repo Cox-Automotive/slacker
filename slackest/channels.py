@@ -37,7 +37,7 @@ class Channels(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('channels.list',
+        yield self.get('channels.list',
                         params={'exclude_archived': str(exclude_archived).lower(),
                                 'exclude_members': str(exclude_members).lower()})
 
@@ -222,5 +222,6 @@ class Channels(BaseAPI):
         :return: Returns the channel ID
         :rtype: str
         """
-        channels = self.list().body['channels']
+        channels_gen = next(self.list())
+        channels = channels_gen.body['channels']
         yield get_item_id_by_name(channels, channel_name)
