@@ -60,7 +60,8 @@ class TestUtils(unittest.TestCase):
             status_code=200, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        all_users = sc.list_all_users().body['members']
+        sc_gen = next(sc.list_all_users())
+        all_users = sc_gen.body['members']
         first_user_id = all_users[0].get('id')
         self.assertEqual('W012A3CDE', first_user_id)
 
@@ -71,7 +72,8 @@ class TestUtils(unittest.TestCase):
             status_code=500, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        error = sc.list_all_users().body['error']
+        sc_gen = next(sc.list_all_users())
+        error = sc_gen.body['error']
         self.assertEqual('fatal_error', error)
 
     # kick_user
@@ -103,7 +105,8 @@ class TestUtils(unittest.TestCase):
             status_code=200, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        second_user = sc.history_all('asd').body['messages'][1].get('user')
+        sc_gen = next(sc.history_all('asd'))
+        second_user = sc_gen.body['messages'][1].get('user')
         self.assertEqual('U061F7AUR', second_user)
 
     @patch('slackest.base_api.requests')
@@ -113,7 +116,8 @@ class TestUtils(unittest.TestCase):
             status_code=404, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        error = sc.history_all('NOTFOUND').body['error']
+        sc_gen = next(sc.history_all('NOTFOUND'))
+        error = sc_gen.body['error']
         self.assertEqual('channel_not_found', error)
 
     # post_message_to_channel
@@ -208,7 +212,8 @@ class TestUtils(unittest.TestCase):
             status_code=200, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        replies = sc.get_replies('C0G9QF9GW', '1482960137.003543').body['messages'][0].get['reply_count']
+        replies_gen = next(sc.get_replies('C0G9QF9GW', '1482960137.003543'))
+        replies = replies_gen.body['messages'][0].get['reply_count']
         self.assertEqual(3, replies)
 
     @patch('slackest.base_api.requests')
@@ -218,7 +223,8 @@ class TestUtils(unittest.TestCase):
             status_code=404, text=json_to_text,
         )
         sc = Slackest(token='aaa')
-        error = sc.get_replies('C0G9QF9GW', '1482960137.003543').body['error']
+        replies_gen = next(sc.get_replies('C0G9QF9GW', '1482960137.003543'))
+        error = replies_gen.body['error']
         self.assertEqual('thread_not_found', error)
 
     # set_purpose
