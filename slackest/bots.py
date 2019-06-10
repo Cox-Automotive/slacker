@@ -12,5 +12,5 @@ class Bots(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('bots.info', params={'bot': bot})
+        return self.get('bots.info', params={'bot': bot})
 

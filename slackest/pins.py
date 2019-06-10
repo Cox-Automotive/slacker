@@ -21,7 +21,7 @@ class Pins(BaseAPI):
         # One of file, file_comment, or timestamp must also be specified
         assert file_ or file_comment or timestamp
 
-        yield self.post('pins.add',
+        return self.post('pins.add',
                          data={
                              'channel': channel,
                              'file': file_,
@@ -47,7 +47,7 @@ class Pins(BaseAPI):
         # One of file, file_comment, or timestamp must also be specified
         assert file_ or file_comment or timestamp
 
-        yield self.post('pins.remove',
+        return self.post('pins.remove',
                          data={
                              'channel': channel,
                              'file': file_,

@@ -15,7 +15,7 @@ class MPIM(BaseAPI):
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
 
-        yield self.post('mpim.open', data={'users': users})
+        return self.post('mpim.open', data={'users': users})
 
     def close(self, channel):
         """
@@ -26,7 +26,7 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('mpim.close', data={'channel': channel})
+        return self.post('mpim.close', data={'channel': channel})
 
     def mark(self, channel, time_stamp):
         """
@@ -39,7 +39,7 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('mpim.mark', data={'channel': channel, 'ts': time_stamp})
+        return self.post('mpim.mark', data={'channel': channel, 'ts': time_stamp})
 
     def list(self):
         """

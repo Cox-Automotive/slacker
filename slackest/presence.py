@@ -17,4 +17,4 @@ class Presence(BaseAPI):
         :rtype: :class:`Response <Response>` object
         """
         assert presence in Presence.TYPES, 'Invalid presence type'
-        yield self.post('presence.set', data={'presence': presence})
+        return self.post('presence.set', data={'presence': presence})

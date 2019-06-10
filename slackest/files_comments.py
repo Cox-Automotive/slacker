@@ -14,7 +14,7 @@ class FilesComments(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('files.comments.add',
+        return self.post('files.comments.add',
                          data={'file': file_, 'comment': comment})
 
     def delete(self, file_, id):
@@ -28,7 +28,7 @@ class FilesComments(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('files.comments.delete',
+        return self.post('files.comments.delete',
                          data={'file': file_, 'id': id})
 
     def edit(self, file_, id, comment):
@@ -44,5 +44,5 @@ class FilesComments(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('files.comments.edit',
+        return self.post('files.comments.edit',
                          data={'file': file_, 'id': id, 'comment': comment})

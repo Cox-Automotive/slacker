@@ -14,7 +14,7 @@ class UsersProfile(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield super(UsersProfile, self).get(
+        return super(UsersProfile, self).get(
             'users.profile.get',
             params={'user': user, 'include_labels': str(include_labels).lower()}
         )
@@ -34,7 +34,7 @@ class UsersProfile(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('users.profile.set',
+        return self.post('users.profile.set',
                          data={
                              'user': user,
                              'profile': profile,

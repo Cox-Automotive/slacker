@@ -20,7 +20,7 @@ class Stars(BaseAPI):
         """
         assert file_ or file_comment or channel
 
-        yield self.post('stars.add',
+        return self.post('stars.add',
                          data={
                              'file': file_,
                              'file_comment': file_comment,
@@ -57,7 +57,7 @@ class Stars(BaseAPI):
         """
         assert file_ or file_comment or channel
 
-        yield self.post('stars.remove',
+        return self.post('stars.remove',
                          data={
                              'file': file_,
                              'file_comment': file_comment,

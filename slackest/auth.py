@@ -10,7 +10,7 @@ class Auth(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('auth.test')
+        return self.get('auth.test')
 
     def revoke(self, test=True):
         """
@@ -21,4 +21,4 @@ class Auth(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('auth.revoke', data={'test': int(test)})
+        return self.post('auth.revoke', data={'test': int(test)})

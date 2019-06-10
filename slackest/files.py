@@ -10,7 +10,7 @@ class Files(BaseAPI):
 
     @property
     def comments(self):
-        yield self._comments
+        return self._comments
 
     def list(self, user=None, ts_from=None, ts_to=None, types=None,
              count=None, page=None, channel=None):
@@ -62,7 +62,7 @@ class Files(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('files.info',
+        return self.get('files.info',
                         params={'file': file_, 'count': count, 'page': page,
                                 'cursor': cursor, 'limit': limit})
 
@@ -106,13 +106,13 @@ class Files(BaseAPI):
         if file_:
             if isinstance(file_, str):
                 with open(file_, 'rb') as file_name:
-                    yield self.post('files.upload', data=data, files={'file': file_name})
+                    return self.post('files.upload', data=data, files={'file': file_name})
 
-            yield self.post(
+            return self.post(
                 'files.upload', data=data, files={'file': file_}
             )
         else:
-            yield self.post('files.upload', data=data)
+            return self.post('files.upload', data=data)
 
     def delete(self, file_):
         """
@@ -123,7 +123,7 @@ class Files(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('files.delete', data={'file': file_})
+        return self.post('files.delete', data={'file': file_})
 
     def revoke_public_url(self, file_):
         """
@@ -134,7 +134,7 @@ class Files(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('files.revokePublicURL', data={'file': file_})
+        return self.post('files.revokePublicURL', data={'file': file_})
 
     def shared_public_url(self, file_):
         """
@@ -145,4 +145,4 @@ class Files(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('files.sharedPublicURL', data={'file': file_})
+        return self.post('files.sharedPublicURL', data={'file': file_})

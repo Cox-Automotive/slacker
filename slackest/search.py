@@ -23,7 +23,7 @@ class Search(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('search.all',
+        return self.get('search.all',
                         params={
                             'query': query,
                             'sort': sort,
@@ -53,7 +53,7 @@ class Search(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('search.files',
+        return self.get('search.files',
                         params={
                             'query': query,
                             'sort': sort,
@@ -83,7 +83,7 @@ class Search(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('search.messages',
+        return self.get('search.messages',
                         params={
                             'query': query,
                             'sort': sort,

@@ -24,11 +24,11 @@ class Users(BaseAPI):
         :return: A usersprofile object.
         :rtype: :class:`UsersProfile <UsersProfile>` object
         """
-        yield self._profile
+        return self._profile
 
     @property
     def admin(self):
-        yield self._admin
+        return self._admin
 
     def info(self, user, include_locale=False):
         """
@@ -38,10 +38,10 @@ class Users(BaseAPI):
         :type user: str
         :param include_locale: Whether or not to include the user's locale
         :type include_locale: bool
-        :yield: A response object to run the API request.
+        :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('users.info',
+        return self.get('users.info',
                         params={'user': user, 'include_locale': str(include_locale).lower()})
 
     def list(self, cursor=None, include_locale=True, limit=500):
@@ -96,7 +96,7 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('users.identity')
+        return self.get('users.identity')
 
     def set_active(self):
         """
@@ -105,7 +105,7 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('users.setActive')
+        return self.post('users.setActive')
 
     def get_presence(self, user):
         """
@@ -116,7 +116,7 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('users.getPresence', params={'user': user})
+        return self.get('users.getPresence', params={'user': user})
 
     def set_presence(self, presence):
         """
@@ -127,7 +127,7 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('users.setPresence', data={'presence': presence})
+        return self.post('users.setPresence', data={'presence': presence})
 
     def get_user_id(self, user_name):
         """
@@ -140,4 +140,4 @@ class Users(BaseAPI):
         """
         members_gen = next(self.list_all())
         members = members_gen.body['members']
-        yield get_item_id_by_name(members, user_name) 
+        return get_item_id_by_name(members, user_name) 

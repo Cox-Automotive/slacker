@@ -38,7 +38,7 @@ class UserGroupsUsers(BaseAPI):
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
 
-        yield self.post('usergroups.users.update', data={
+        return self.post('usergroups.users.update', data={
             'usergroup': usergroup,
             'users': users,
             'include_count': str(include_count).lower(),

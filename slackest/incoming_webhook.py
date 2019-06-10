@@ -25,5 +25,5 @@ class IncomingWebhook(object):
         if not self.url:
             raise SlackestError('URL for incoming webhook is undefined')
 
-        yield requests.post(self.url, data=json.dumps(data),
+        return requests.post(self.url, data=json.dumps(data),
                              timeout=self.timeout, proxies=self.proxies)

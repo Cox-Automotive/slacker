@@ -1,3 +1,5 @@
+import json
+
 from .base_api import BaseAPI
 
 class Dialog(BaseAPI):

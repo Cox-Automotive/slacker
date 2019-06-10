@@ -32,7 +32,7 @@ class IM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('im.history',
+        return self.get('im.history',
                         params={
                             'channel': channel,
                             'latest': latest,
@@ -53,7 +53,7 @@ class IM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('im.replies',
+        return self.get('im.replies',
                         params={'channel': channel, 'thread_ts': thread_ts})
 
     def mark(self, channel, time_stamp):
@@ -67,7 +67,7 @@ class IM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('im.mark', data={'channel': channel, 'ts': time_stamp})
+        return self.post('im.mark', data={'channel': channel, 'ts': time_stamp})
 
     def open(self, user, include_locale=True, return_im=True):
         """
@@ -82,7 +82,7 @@ class IM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('im.open',
+        return self.post('im.open',
                          data={'user': user, 'include_locale': str(include_locale).lower(),
                                'return_im': str(return_im).lower()})
 
@@ -95,4 +95,4 @@ class IM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('im.close', data={'channel': channel})
+        return self.post('im.close', data={'channel': channel})

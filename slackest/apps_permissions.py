@@ -10,7 +10,7 @@ class AppsPermissions(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('apps.permissions.info')
+        return self.get('apps.permissions.info')
 
     def request(self, scopes, trigger_id):
         """
@@ -23,7 +23,7 @@ class AppsPermissions(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('apps.permissions.request',
+        return self.post('apps.permissions.request',
                          data={
                              scopes: ','.join(scopes),
                              trigger_id: trigger_id,

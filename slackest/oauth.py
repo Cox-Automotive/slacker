@@ -18,7 +18,7 @@ class OAuth(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('oauth.access',
+        return self.post('oauth.access',
                          data={
                              'client_id': client_id,
                              'client_secret': client_secret,
@@ -44,7 +44,7 @@ class OAuth(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('oauth.token',
+        return self.post('oauth.token',
                          data={
                              'client_id': client_id,
                              'client_secret': client_secret,

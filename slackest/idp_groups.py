@@ -12,6 +12,6 @@ class IDPGroups(BaseAPI):
         :return :
         :rtype:
         """
-        yield self.get('idpgroups.list',
+        return self.get('idpgroups.list',
                         params={'include_users': int(include_users)})
 

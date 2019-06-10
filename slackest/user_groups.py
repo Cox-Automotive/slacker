@@ -10,7 +10,7 @@ class UserGroups(BaseAPI):
 
     @property
     def users(self):
-        yield self._users
+        return self._users
 
     def list(self, include_disabled=False, include_count=False, include_users=False):
         """
@@ -52,7 +52,7 @@ class UserGroups(BaseAPI):
         if isinstance(channels, (tuple, list)):
             channels = ','.join(channels)
 
-        yield self.post('usergroups.create', data={
+        return self.post('usergroups.create', data={
             'name': name,
             'handle': handle,
             'description': description,
@@ -83,7 +83,7 @@ class UserGroups(BaseAPI):
         if isinstance(channels, (tuple, list)):
             channels = ','.join(channels)
 
-        yield self.post('usergroups.update', data={
+        return self.post('usergroups.update', data={
             'usergroup': usergroup,
             'name': name,
             'handle': handle,
@@ -103,7 +103,7 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('usergroups.disable', data={
+        return self.post('usergroups.disable', data={
             'usergroup': usergroup,
             'include_count': str(include_count).lower(),
         })
@@ -119,7 +119,7 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('usergroups.enable', data={
+        return self.post('usergroups.enable', data={
             'usergroup': usergroup,
             'include_count': str(include_count).lower(),
         })

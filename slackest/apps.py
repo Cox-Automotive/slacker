@@ -10,5 +10,5 @@ class Apps(BaseAPI):
 
     @property
     def permissions(self):
-        yield self._permissions
+        return self._permissions
 

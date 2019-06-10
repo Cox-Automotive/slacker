@@ -7,7 +7,7 @@ class Emoji(BaseAPI):
         """
         List all emojis
 
-        :yield: A response object to run the API request.
+        :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('emoji.list')
+        return self.get('emoji.list')

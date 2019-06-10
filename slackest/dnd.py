@@ -15,7 +15,7 @@ class DND(BaseAPI):
         if isinstance(users, (tuple, list)):
             users = ','.join(users)
 
-        yield self.get('dnd.teamInfo', params={'users': users})
+        return self.get('dnd.teamInfo', params={'users': users})
 
     def set_snooze(self, num_minutes):
         """
@@ -26,7 +26,7 @@ class DND(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('dnd.setSnooze', data={'num_minutes': num_minutes})
+        return self.post('dnd.setSnooze', data={'num_minutes': num_minutes})
 
     def info(self, user=None):
         """
@@ -37,7 +37,7 @@ class DND(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.get('dnd.info', params={'user': user})
+        return self.get('dnd.info', params={'user': user})
 
     def end_dnd(self):
         """
@@ -46,7 +46,7 @@ class DND(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('dnd.endDnd')
+        return self.post('dnd.endDnd')
 
     def end_snooze(self):
         """
@@ -55,5 +55,5 @@ class DND(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        yield self.post('dnd.endSnooze')
+        return self.post('dnd.endSnooze')
 
