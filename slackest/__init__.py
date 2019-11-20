@@ -21,7 +21,7 @@ from .utils import get_item_id_by_name
 
 from .constants import *
 
-__version__ = '0.13.3'
+__version__ = '0.14.0'
 __all__ = ['SlackestError', 'Response', 'BaseAPI', 'API', 'Auth', 'Users',
            'Groups', 'Conversation', 'Channels', 'Chat', 'IM',
            'IncomingWebhook', 'Search', 'Files', 'Stars', 'Emoji', 'Presence',
