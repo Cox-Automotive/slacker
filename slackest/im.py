@@ -10,7 +10,7 @@ class IM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('im.list')
+        yield self.get('im.list')
 
     def history(self, channel, latest=None, oldest=None, count=None,
                 inclusive=True, unreads=False):

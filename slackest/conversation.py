@@ -2,6 +2,8 @@ import datetime
 import time
 
 from .base_api import BaseAPI
+from .constants import *
+from .slackest_error import SlackestError
 
 class Conversation(BaseAPI):
     """Follows the Slack Conversation API.
@@ -102,7 +104,7 @@ class Conversation(BaseAPI):
 
         if conversations:
             response.body['messages'] = conversations
-        return response
+        yield response
 
     def info(self, channel, include_locale=False, include_num_members=False):
         """
@@ -187,7 +189,7 @@ class Conversation(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.post('conversations.list',
+        yield self.post('conversations.list',
                          data={'cursor': cursor, 'exclude_archived': str(exclude_archived).lower(),
                                'limit': limit, 'types': types})
 
@@ -262,7 +264,7 @@ class Conversation(BaseAPI):
 
         if members:
             response.body['members'] = members
-        return response
+        yield response
 
     def open(self, channel, return_im=True, users=[]):
         """
@@ -351,7 +353,7 @@ class Conversation(BaseAPI):
 
         if replies:
             response.body['message'] = replies
-        return response
+        yield response
 
     def setPurpose(self, channel, purpose):
         """

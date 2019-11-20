@@ -61,5 +61,5 @@ class Reminders(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('reminders.list')
+        yield self.get('reminders.list')
 

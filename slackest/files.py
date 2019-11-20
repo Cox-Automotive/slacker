@@ -34,7 +34,7 @@ class Files(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('files.list',
+        yield self.get('files.list',
                         params={
                             'user': user,
                             'ts_from': ts_from,

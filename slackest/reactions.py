@@ -76,7 +76,7 @@ class Reactions(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return super(Reactions, self).get('reactions.list',
+        yield super(Reactions, self).get('reactions.list',
                                           params={
                                               'user': user,
                                               'full': full,

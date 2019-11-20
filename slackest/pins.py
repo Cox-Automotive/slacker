@@ -64,5 +64,5 @@ class Pins(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('pins.list', params={'channel': channel})
+        yield self.get('pins.list', params={'channel': channel})
 

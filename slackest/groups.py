@@ -52,7 +52,7 @@ class Groups(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('groups.list',
+        yield self.get('groups.list',
                         params={'exclude_archived': str(exclude_archived).lower(),
                                 'exclude_members': str(exclude_members).lower()})
 

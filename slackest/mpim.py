@@ -48,7 +48,7 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('mpim.list')
+        yield self.get('mpim.list')
 
     def history(self, channel, latest=None, oldest=None, inclusive=False,
                 count=None, unreads=False):
@@ -70,7 +70,7 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('mpim.history',
+        yield self.get('mpim.history',
                         params={
                             'channel': channel,
                             'latest': latest,
@@ -91,5 +91,5 @@ class MPIM(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('mpim.replies',
+        yield self.get('mpim.replies',
                         params={'channel': channel, 'thread_ts': thread_ts})

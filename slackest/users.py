@@ -5,6 +5,7 @@ from .users_profile import UsersProfile
 from .users_admin import UsersAdmin
 from .utils import get_item_id_by_name
 from .constants import *
+from .response import Response
 
 
 class Users(BaseAPI):
@@ -56,7 +57,7 @@ class Users(BaseAPI):
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('users.list',
+        yield self.get('users.list',
                         params={'include_locale': str(include_locale).lower(),
                                 'limit': limit, 'cursor': cursor})
 
@@ -86,7 +87,7 @@ class Users(BaseAPI):
         if members:
             response.body['members'] = members
 
-        return response
+        yield response
 
     def identity(self):
         """
@@ -137,5 +138,6 @@ class Users(BaseAPI):
         :return: Returns the user ID
         :rtype: str
         """
-        members = self.list_all().body['members']
-        return get_item_id_by_name(members, user_name)
+        members_gen = next(self.list_all())
+        members = members_gen.body['members']
+        return get_item_id_by_name(members, user_name) 

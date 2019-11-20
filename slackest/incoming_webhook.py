@@ -1,3 +1,6 @@
+import requests
+import json
+
 from .slackest_error import SlackestError
 from .constants import *
 

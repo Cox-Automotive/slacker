@@ -25,7 +25,7 @@ class UserGroups(BaseAPI):
         :return: A response object to run the request.
         :rtype: :class:`Response <Response>` object
         """
-        return self.get('usergroups.list', params={
+        yield self.get('usergroups.list', params={
             'include_disabled': str(include_disabled).lower(),
             'include_count': str(include_count).lower(),
             'include_users': str(include_users).lower(),

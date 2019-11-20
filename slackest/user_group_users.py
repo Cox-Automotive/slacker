@@ -17,7 +17,7 @@ class UserGroupsUsers(BaseAPI):
         if isinstance(include_disabled, bool):
             include_disabled = str(include_disabled).lower()
 
-        return self.get('usergroups.users.list', params={
+        yield self.get('usergroups.users.list', params={
             'usergroup': usergroup,
             'include_disabled': include_disabled,
         })
