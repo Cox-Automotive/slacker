@@ -174,6 +174,19 @@ class Slackest(object):
         """
         return self.chat.post_message(channel, text=message, link_names=True)
 
+    def post_message_to_channel_basic(self, channel, message):
+        """
+        Posts a message to a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param message: The message text
+        :type message: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
+        return self.chat.post_message_basic(channel, text=message, link_names=True)
+
     def post_thread_to_message(self, channel, message, thread_ts):
         """
 
