@@ -62,6 +62,26 @@ class Chat(BaseAPI):
                              'reply_broadcast': reply_broadcast
                          })
 
+    def post_message_basic(self, channel, text=None, link_names=None):
+        """
+        Posts a message to a channel
+
+        :param channel: The channel ID
+        :type channel: str
+        :param text: Text of the message to post
+        :type text: str
+        :param link_names: Find and link channel names and username
+        :type link_names: str
+        :return: A response object to run the API request.
+        :rtype: :class:`Response <Response>` object
+        """
+        return self.post('chat.postMessage',
+                         data={
+                             'channel': channel,
+                             'text': text,
+                             'link_names': link_names
+                         })
+
     def me_message(self, channel, text):
         """
         Share a me message to a channel
