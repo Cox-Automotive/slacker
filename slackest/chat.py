@@ -7,7 +7,7 @@ class Chat(BaseAPI):
     def post_message(self, channel, text=None, username=None, as_user=False,
                      parse=None, link_names=None, attachments=None,
                      unfurl_links=None, unfurl_media=None, icon_url=None,
-                     icon_emoji=None, thread_ts=None, reply_broadcast=None):
+                     icon_emoji=None, thread_ts=None, reply_broadcast=False):
         """
         Posts a message to a channel
 
@@ -36,7 +36,7 @@ class Chat(BaseAPI):
         :param thread_ts: Provide another messages ts value to make this message a reply
         :type thread_ts: str
         :param reply_broadcast: Indicates whether reply should be visible in the channel
-        :type reply_broadcast: str
+        :type reply_broadcast: bool
         :return: A response object to run the API request.
         :rtype: :class:`Response <Response>` object
         """
