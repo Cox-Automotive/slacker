@@ -11,12 +11,12 @@ pluggy==0.13.0
 py==1.10.0
 pylint==2.3.1
 pytest==5.3.0
-requests==2.22.0
+requests==2.27.1
 six==1.13.0
 sphinx==2.0.1
 toml==0.10.0
 tox==3.14.1
 twine==1.13.0
-urllib3==1.25.8
+urllib3==1.26.5
 virtualenv==16.7.7
 wheel==0.32.3
