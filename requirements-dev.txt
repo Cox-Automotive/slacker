@@ -10,4 +10,4 @@ py==1.10.0
 pytest==5.3.0
 requests==2.22.0
 six==1.13.0
-urllib3==1.25.8
+urllib3==1.26.5
