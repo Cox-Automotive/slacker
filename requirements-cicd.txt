@@ -11,7 +11,7 @@ pluggy==0.13.0
 py==1.10.0
 pylint==2.3.1
 pytest==5.3.0
-requests==2.22.0
+requests==2.27.1
 six==1.13.0
 sphinx==2.0.1
 toml==0.10.0
